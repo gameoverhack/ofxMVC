@@ -100,6 +100,18 @@ public:
         return warp->getShowWarpGrid();
     };
     
+    void toggleDoWarp(){
+        warp->toggleDoWarp();
+    }
+    
+    void setDoWarp(bool b){
+        warp->setDoWarp(b);
+    }
+    
+    bool getDoWarp(){
+        return warp->getDoWarp();
+    }
+    
     ofFbo& getFBO(){
         return warp->getFBO();
     };
