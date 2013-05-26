@@ -94,7 +94,7 @@ void BaseView::draw(float x, float y){
 
 //--------------------------------------------------------------
 void BaseView::draw(float x, float y, float w, float h){
-    warp->draw(0, 0, w * displayWidth/width, h * displayHeight/height);
+    warp->draw(x, y, w * displayWidth/width, h * displayHeight/height);
 }
 
 //--------------------------------------------------------------

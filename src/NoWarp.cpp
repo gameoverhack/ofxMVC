@@ -27,7 +27,7 @@ void NoWarp::allocate(int w, int h){
 void NoWarp::begin(){
     fbo.begin();
     glPushMatrix();
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
