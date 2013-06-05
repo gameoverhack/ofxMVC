@@ -11,6 +11,7 @@
 #include "ofxLogger.h"
 #include "SerializationUtils.h"
 #include "States.h"
+#include <libproc.h>
 
 class BaseModel {
     
@@ -138,6 +139,9 @@ public:
     
     string getAllPropsAsString();
     
+    string getApplicationPath();
+    string getApplicationName();
+    
 protected:
     
     // state storage
@@ -172,6 +176,9 @@ protected:
 	}
     
 private:
+    
+    string applicationName;
+    string applicationPath;
     
 };
 

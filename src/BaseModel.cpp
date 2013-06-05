@@ -10,7 +10,7 @@
 //--------------------------------------------------------------
 BaseModel::BaseModel() {
     //ofxLogNotice() << "Constructing BaseModel" << endl;
-    padLength = 15;
+    reset();
 }
 
 //--------------------------------------------------------------
@@ -34,6 +34,9 @@ bool BaseModel::load(string filename, ArchiveType archiveType){
 }
 
 void BaseModel::reset(){
+    //reset defaults
+    padLength = 15;
+    applicationName = applicationPath = "";
     // clean up memeory
     intProps.clear();
     floatProps.clear();
@@ -243,6 +246,36 @@ string BaseModel::getAllPropsAsString(){
         os << pad(first) << " = " << second << " (" << type << ")" << endl;
     }
     return os.str();
+}
+
+//--------------------------------------------------------------
+string BaseModel::getApplicationName(){
+    if(applicationName == ""){
+        getApplicationPath();
+    }
+    return applicationName;
+}
+
+//--------------------------------------------------------------
+string BaseModel::getApplicationPath(){
+    // from http://stackoverflow.com/questions/799679/programatically-retrieving-the-absolute-path-of-an-os-x-command-line-app/1024933#1024933
+    if(applicationPath == ""){
+        int ret;
+        pid_t pid; 
+        char pathbuf[1024];
+        pid = getpid();
+        ret = proc_pidpath (pid, pathbuf, sizeof(pathbuf));
+        if(ret <= 0){
+            ofLogError() << "PID " << pid << " proc_pidpath(): " << strerror(errno);
+        }else{
+            ofLogVerbose() << "proc " << pid << " path: " << pathbuf;
+        }
+        applicationPath = string(pathbuf);
+        vector<string> pathParts = ofSplitString(applicationPath, "/");
+        applicationName = pathParts[pathParts.size() - 1];
+    }
+    
+    return applicationPath;
 }
 
 //--------------------------------------------------------------

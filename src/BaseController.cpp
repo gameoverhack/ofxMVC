@@ -9,7 +9,7 @@
 
 //--------------------------------------------------------------
 BaseController::BaseController(){
-    ofxLogVerbose() << "Creating BaseController" << endl;
+    //ofxLogVerbose() << "Creating BaseController" << endl;
 }
 
 //--------------------------------------------------------------

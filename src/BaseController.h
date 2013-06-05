@@ -8,8 +8,8 @@
 #ifndef _H_BASECONTROLLER
 #define _H_BASECONTROLLER
 
+#include "ofxLogger.h"
 #include "ofMain.h"
-#include "BaseModel.h"
 
 class BaseController : public ofBaseApp{
     
