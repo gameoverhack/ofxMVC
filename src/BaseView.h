@@ -4,7 +4,6 @@
 //  Created by game over on 26/02/13.
 //  Copyright (c) 2013 trace media. All rights reserved.
 //
-
 #ifndef _H_BASEVIEW
 #define _H_BASEVIEW
 
@@ -12,17 +11,20 @@
 #include "BaseModel.h"
 #include "NoWarp.h"
 #include "BezierWarp.h"
+#ifdef USE_FENSTER
 #include "ofxFensterManager.h"
-
+#endif
 enum ViewOption{
     VIEW_USE_WINDOW     = 0x01,        // 1   - adds date to the log
     VIEW_USE_FBO        = 0x02,        // 2   - adds time to the log
     VIEW_USE_BEZIERWARP = 0x04,        // 4   - adds the class & function names to the log
     VIEW_USE_MATRIXWARP = 0x08,        // 8   - adds the log level type to the log
 };
-
+#ifdef USE_FENSTER
 class BaseView : public ofxFensterListener {
-    
+#else
+class BaseView {
+#endif
 public:
 	
     BaseView();
@@ -43,8 +45,9 @@ public:
     float getWidth();
     float getHeight();
     string getName();
-    
+#ifdef USE_FENSTER
     ofxFenster&     getWindow();
+#endif
     ofFbo&          getFBO();
     ofTexture&      getTextureReference();
     
@@ -62,8 +65,9 @@ protected:
     inline bool     getIsOption(ViewOption viewOption);
     
     ViewOption      viewOptions;
-    
+#ifdef USE_FENSTER
     ofxFenster*     window;
+#endif
     BaseWarp*       warp;
     
     float           width, displayWidth;
@@ -72,6 +76,7 @@ protected:
     string          viewName;
     
     bool            bIsSetup;
+    bool            bNoWarp;
     
 private:
 	

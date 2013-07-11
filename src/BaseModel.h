@@ -64,6 +64,14 @@ public:
         return hasProperty(property, t);
     };
     
+    template<typename T>
+    bool removeProperty(string property){
+        T t; // using this to overload the template isn't pretty but waaay easier than speciliazation
+        return removeProperty(property, t);
+    };
+    
+    void removeAllProperties();
+    
     // template overloads for PoD getProperty
     int getProperty(string property, int & value){
         assert(intProps.count(property) != 0);
@@ -134,6 +142,18 @@ public:
         if(boolVecProps.count(property) != 0) return true;
         return false;
     };
+    
+    // generic property removers for PoD
+	void removeProperty(string property, int value);
+    void removeProperty(string property, float value);
+    void removeProperty(string property, string value);
+    void removeProperty(string property, bool value);
+	
+    // generic property removers for vector of PoD
+	void removeProperty(string property, vector<int> value);
+    void removeProperty(string property, vector<float> value);
+    void removeProperty(string property, vector<string> value);
+    void removeProperty(string property, vector<bool> value);
     
     friend ostream& operator<< (ostream &os, BaseModel &bm);
     

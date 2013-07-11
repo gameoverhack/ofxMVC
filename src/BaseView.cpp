@@ -26,6 +26,7 @@ void BaseView::setup(float _width, float _height, ViewOption _viewOptions, strin
     width = displayWidth = _width;
     height = displayHeight = _height;
     viewName = _viewName;
+    bNoWarp = false;
     
     if(getIsOption(VIEW_USE_WINDOW)){
         
@@ -35,7 +36,7 @@ void BaseView::setup(float _width, float _height, ViewOption _viewOptions, strin
         ofxLogError() << "Can only use one warp type at a time" << endl;
         return;
     }
-    
+#ifdef USE_FENSTER
     if(getIsOption(VIEW_USE_WINDOW)){
         
         ofxLogVerbose() << "Allocating View window mode: ofFenster" << endl;
@@ -45,7 +46,7 @@ void BaseView::setup(float _width, float _height, ViewOption _viewOptions, strin
         window->setBackgroundColor(0,0,0);
         window->setWindowTitle(viewName);
     }
-    
+#endif
     if(getIsOption(VIEW_USE_BEZIERWARP)){
         
         ofxLogVerbose() << "Allocating View warp mode: ofxBezierWarp" << endl;
@@ -64,7 +65,8 @@ void BaseView::setup(float _width, float _height, ViewOption _viewOptions, strin
        !getIsOption(VIEW_USE_BEZIERWARP) && 
        !getIsOption(VIEW_USE_MATRIXWARP)){
         
-        ofxLogWarning() << "No render mode allocated, defaulting to VIEW_USE_FBO" << endl;
+        ofxLogWarning() << "No render mode allocated" << endl;
+        bNoWarp = true;
         
     }
     
@@ -94,23 +96,25 @@ void BaseView::draw(float x, float y){
 
 //--------------------------------------------------------------
 void BaseView::draw(float x, float y, float w, float h){
-    warp->draw(x, y, w * displayWidth/width, h * displayHeight/height);
+    if(!bNoWarp) warp->draw(x, y, w * displayWidth/width, h * displayHeight/height);
 }
 
 //--------------------------------------------------------------
 void BaseView::begin(){
-    warp->begin();
+    if(!bNoWarp) warp->begin();
 }
 
 //--------------------------------------------------------------
 void BaseView::end(){
-    warp->end();
+    if(!bNoWarp) warp->end();
 }
 
 void BaseView::setPosition(float x, float y, float w, float h){
     if(getIsOption(VIEW_USE_WINDOW)){
+#ifdef USE_FENSTER
         window->setWindowShape(w, h);
         window->setWindowPosition(x, y);
+#endif
         displayWidth = w;
         displayHeight = h;
     }else{
@@ -135,12 +139,12 @@ float BaseView::getHeight(){
 string BaseView::getName(){
     return viewName;
 }
-
+#ifdef USE_FENSTER
 //--------------------------------------------------------------
 ofxFenster& BaseView::getWindow(){
     return (*window);
 }
-
+#endif
 //--------------------------------------------------------------
 ofFbo& BaseView::getFBO(){
     return warp->getFBO();

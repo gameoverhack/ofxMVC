@@ -138,6 +138,100 @@ void BaseModel::setProperty(string property, vector<bool> value){
     boolVecProps[property] = value;
 }
 
+// overloaded property removers for vector of PoD
+//--------------------------------------------------------------
+void BaseModel::removeProperty(string property, int value){
+    map<string, int>::iterator it = intProps.find(property);
+    if(it != intProps.end()){
+        intProps.erase(it);
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------
+void BaseModel::removeProperty(string property, float value){
+    map<string, float>::iterator it = floatProps.find(property);
+    if(it != floatProps.end()){
+        floatProps.erase(it);
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------
+void BaseModel::removeProperty(string property, string value){
+    map<string, string>::iterator it = stringProps.find(property);
+    if(it != stringProps.end()){
+        stringProps.erase(it);
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------
+void BaseModel::removeProperty(string property, bool value){
+    map<string, bool>::iterator it = boolProps.find(property);
+    if(it != boolProps.end()){
+        boolProps.erase(it);
+        return true;
+    }
+    return false;
+}
+
+// overloaded property removers for vector of PoD
+//--------------------------------------------------------------
+void BaseModel::removeProperty(string property, vector<int> value){
+    map<string, vector<int> >::iterator it = intVecProps.find(property);
+    if(it != intVecProps.end()){
+        intVecProps.erase(it);
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------
+void BaseModel::removeProperty(string property, vector<float> value){
+    map<string, vector<float> >::iterator it = floatVecProps.find(property);
+    if(it != floatVecProps.end()){
+        floatVecProps.erase(it);
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------
+void BaseModel::removeProperty(string property, vector<string> value){
+    map<string, vector<string> >::iterator it = stringVecProps.find(property);
+    if(it != stringVecProps.end()){
+        stringVecProps.erase(it);
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------
+void BaseModel::removeProperty(string property, vector<bool> value){
+    map<string, vector<bool> >::iterator it = boolVecProps.find(property);
+    if(it != boolVecProps.end()){
+        boolVecProps.erase(it);
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------
+void BaseModel::removeAllProperties(){
+    intProps.clear();
+    floatProps.clear();
+    stringProps.clear();
+    boolProps.clear();
+    intVecProps.clear();
+    floatVecProps.clear();
+    stringVecProps.clear();
+    boolVecProps.clear();
+}
+
 //--------------------------------------------------------------
 string BaseModel::getAllPropsAsString(){
     ostringstream os;
