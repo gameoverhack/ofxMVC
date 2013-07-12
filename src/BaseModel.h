@@ -65,9 +65,9 @@ public:
     };
     
     template<typename T>
-    bool removeProperty(string property){
+    void removeProperty(string property){
         T t; // using this to overload the template isn't pretty but waaay easier than speciliazation
-        return removeProperty(property, t);
+        removeProperty(property, t);
     };
     
     void removeAllProperties();
