@@ -8,6 +8,12 @@
 #ifndef _H_BASEMODEL
 #define _H_BASEMODEL
 
+//#define USE_OPENFRAMEWORKS_TYPES 1
+
+#ifdef USE_OPENFRAMEWORKS_TYPES
+#include "ofTypes.h"
+#endif
+
 #include "ofxLogger.h"
 #include "SerializationUtils.h"
 #include "States.h"
@@ -37,12 +43,21 @@ public:
     void setProperty(string property, float value);
     void setProperty(string property, string value);
     void setProperty(string property, bool value);
-	
+#ifdef USE_OPENFRAMEWORKS_TYPES
+	void setProperty(string property, ofPoint);
+    void setProperty(string property, ofRectangle);
+#endif
+    
     // generic property getter/setters for vector of PoD
 	void setProperty(string property, vector<int> value);
     void setProperty(string property, vector<float> value);
     void setProperty(string property, vector<string> value);
     void setProperty(string property, vector<bool> value);
+    
+#ifdef USE_OPENFRAMEWORKS_TYPES
+    void setProperty(string property, vector<ofPoint> value);
+    void setProperty(string property, vector<ofRectangle> value);
+#endif
     
     // get any ANY property in a map using templates
     // no cast necessary: use T var = appModel->getProperty<T>("varName")
@@ -90,6 +105,17 @@ public:
         return boolProps[property];
     };
     
+#ifdef USE_OPENFRAMEWORKS_TYPES
+    ofPoint getProperty(string property, ofPoint & value){
+        assert(ofPointProps.count(property) != 0);
+        return ofPointProps[property];
+    };
+    ofRectangle getProperty(string property, ofRectangle & value){
+        assert(ofRectangleProps.count(property) != 0);
+        return ofRectangleProps[property];
+    };
+#endif
+    
     // template overloads for vector of PoD getProperty
     vector<int>& getProperty(string property, vector<int> & value){
         assert(intVecProps.count(property) != 0);
@@ -108,6 +134,17 @@ public:
         return boolVecProps[property];
     };
     
+#ifdef USE_OPENFRAMEWORKS_TYPES
+    vector<ofPoint>& getProperty(string property, vector<ofPoint> & value){
+        assert(ofPointVecProps.count(property) != 0);
+        return ofPointVecProps[property];
+    };
+    vector<ofRectangle>& getProperty(string property, vector<ofRectangle> & value){
+        assert(ofRectangleVecProps.count(property) != 0);
+        return ofRectangleVecProps[property];
+    };
+#endif
+    
     bool hasProperty(string property, int & value){
         if(intProps.count(property) != 0) return true;
         return false;
@@ -124,6 +161,17 @@ public:
         if(boolProps.count(property) != 0) return true;
         return false;
     };
+    
+#ifdef USE_OPENFRAMEWORKS_TYPES
+    bool hasProperty(string property, ofPoint & value){
+        if(ofPointProps.count(property) != 0) return true;
+        return false;
+    };
+    bool hasProperty(string property, ofRectangle & value){
+        if(ofRectangleProps.count(property) != 0) return true;
+        return false;
+    };
+#endif
     
     // template overloads for vector of PoD getProperty
     bool hasProperty(string property, vector<int> & value){
@@ -143,17 +191,38 @@ public:
         return false;
     };
     
+#ifdef USE_OPENFRAMEWORKS_TYPES
+    bool hasProperty(string property, vector<ofPoint> & value){
+        if(ofPointVecProps.count(property) != 0) return true;
+        return false;
+    };
+    bool hasProperty(string property, vector<ofRectangle> & value){
+        if(ofRectangleVecProps.count(property) != 0) return true;
+        return false;
+    };
+#endif
+    
     // generic property removers for PoD
 	void removeProperty(string property, int value);
     void removeProperty(string property, float value);
     void removeProperty(string property, string value);
     void removeProperty(string property, bool value);
-	
+    
+#ifdef USE_OPENFRAMEWORKS_TYPES
+    void removeProperty(string property, ofPoint value);
+    void removeProperty(string property, ofRectangle value);
+#endif
+    
     // generic property removers for vector of PoD
 	void removeProperty(string property, vector<int> value);
     void removeProperty(string property, vector<float> value);
     void removeProperty(string property, vector<string> value);
     void removeProperty(string property, vector<bool> value);
+    
+#ifdef USE_OPENFRAMEWORKS_TYPES
+    void removeProperty(string property, vector<ofPoint> value);
+    void removeProperty(string property, vector<ofRectangle> value);
+#endif
     
     friend ostream& operator<< (ostream &os, BaseModel &bm);
     
@@ -161,6 +230,58 @@ public:
     
     string getApplicationPath();
     string getApplicationName();
+    
+    bool operator==(const BaseModel& other) {
+        return (intProps == other.intProps &&
+                floatProps == other.floatProps &&
+                stringProps == other.stringProps &&
+                boolProps == other.boolProps &&
+                intVecProps == other.intVecProps &&
+                floatVecProps == other.floatVecProps &&
+                stringVecProps == other.stringVecProps &&
+                boolVecProps == other.boolVecProps
+#ifdef USE_OPENFRAMEWORKS_TYPES
+                &&
+                ofPointProps == other.ofPointProps &&
+                ofRectangleProps == other.ofRectangleProps &&
+                ofPointVecProps == other.ofPointVecProps &&
+                ofRectangleVecProps == other.ofRectangleVecProps
+#endif
+                );
+    }
+    
+    bool operator!=(const BaseModel& other) {
+        return !(*this == other);
+    }
+    
+    friend void swap(BaseModel& first, BaseModel& second){
+        // enable ADL (not necessary in our case, but good practice)
+        using std::swap;
+        cout << "Swapping base model" << endl;
+        swap(first.intProps, second.intProps);
+        swap(first.floatProps, second.floatProps);
+        swap(first.stringProps, second.stringProps);
+        swap(first.intVecProps, second.intVecProps);
+        
+        swap(first.floatVecProps, second.floatVecProps);
+        swap(first.stringVecProps, second.stringVecProps);
+        swap(first.boolVecProps, second.boolVecProps);
+        swap(first.intProps, second.intProps);
+
+#ifdef USE_OPENFRAMEWORKS_TYPES
+        swap(first.ofPointProps, second.ofPointProps);
+        swap(first.ofRectangleProps, second.ofRectangleProps);
+        swap(first.ofPointVecProps, second.ofPointVecProps);
+        swap(first.ofRectangleVecProps, second.ofRectangleVecProps);
+#endif
+        
+    }
+    
+    BaseModel& operator=(BaseModel other) {
+        cout << "Copying base model" << endl;
+        swap(*this, other);
+        return *this;
+    }
     
 protected:
     
@@ -181,6 +302,13 @@ protected:
     map<string, vector<float> > floatVecProps;
     map<string, vector<string> > stringVecProps;
     map<string, vector<bool> > boolVecProps;
+
+#ifdef USE_OPENFRAMEWORKS_TYPES
+    map<string, ofPoint> ofPointProps;
+    map<string, ofRectangle> ofRectangleProps;
+    map<string, vector<ofPoint> > ofPointVecProps;
+    map<string, vector<ofRectangle> > ofRectangleVecProps;
+#endif
     
     friend class boost::serialization::access;
 	template<class Archive>
@@ -193,6 +321,12 @@ protected:
         ar & BOOST_SERIALIZATION_NVP(floatVecProps);
         ar & BOOST_SERIALIZATION_NVP(stringVecProps);
         ar & BOOST_SERIALIZATION_NVP(boolVecProps);
+#ifdef USE_OPENFRAMEWORKS_TYPES
+        ar & BOOST_SERIALIZATION_NVP(ofPointProps);
+        ar & BOOST_SERIALIZATION_NVP(ofRectangleProps);
+        ar & BOOST_SERIALIZATION_NVP(ofPointVecProps);
+        ar & BOOST_SERIALIZATION_NVP(ofRectangleVecProps);
+#endif
 	}
     
 private:
@@ -207,6 +341,28 @@ inline ostream& operator<<(ostream& os, BaseModel &bm){
 	return os;
 };
 
+#ifdef USE_OPENFRAMEWORKS_TYPES
+namespace boost {
+    namespace serialization {
+        
+        template<class Archive>
+        void serialize(Archive & ar, ofPoint & p, const unsigned int version) {
+            ar & BOOST_SERIALIZATION_NVP(p.x);
+            ar & BOOST_SERIALIZATION_NVP(p.y);
+            ar & BOOST_SERIALIZATION_NVP(p.z);
+        };
+        
+        template<class Archive>
+        void serialize(Archive & ar, ofRectangle & r, const unsigned int version) {
+            ar & BOOST_SERIALIZATION_NVP(r.x);
+            ar & BOOST_SERIALIZATION_NVP(r.y);
+            ar & BOOST_SERIALIZATION_NVP(r.height);
+            ar & BOOST_SERIALIZATION_NVP(r.width);
+        };
+    };
+};
+#endif
+    
 //typedef Singleton<BaseModel> BaseModelSingleton;					// Global declaration
 
 //static BaseModel * baseModel	= BaseModelSingleton::Instance();

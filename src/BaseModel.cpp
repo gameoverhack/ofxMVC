@@ -117,6 +117,18 @@ void BaseModel::setProperty(string property, bool value){
     boolProps[property] = value;
 }
 
+#ifdef USE_OPENFRAMEWORKS_TYPES
+//--------------------------------------------------------------
+void BaseModel::setProperty(string property, ofPoint value){
+    ofPointProps[property] = value;
+}
+
+//--------------------------------------------------------------
+void BaseModel::setProperty(string property, ofRectangle value){
+    ofRectangleProps[property] = value;
+}
+#endif
+
 // overloaded property setters for vector of PoD
 //--------------------------------------------------------------
 void BaseModel::setProperty(string property, vector<int> value){
@@ -137,6 +149,18 @@ void BaseModel::setProperty(string property, vector<string> value){
 void BaseModel::setProperty(string property, vector<bool> value){
     boolVecProps[property] = value;
 }
+
+#ifdef USE_OPENFRAMEWORKS_TYPES
+//--------------------------------------------------------------
+void BaseModel::setProperty(string property, vector<ofPoint> value){
+    ofPointVecProps[property] = value;
+}
+
+//--------------------------------------------------------------
+void BaseModel::setProperty(string property, vector<ofRectangle> value){
+    ofRectangleVecProps[property] = value;
+}
+#endif
 
 // overloaded property removers for vector of PoD
 //--------------------------------------------------------------
@@ -179,6 +203,28 @@ void BaseModel::removeProperty(string property, bool value){
     return false;
 }
 
+#ifdef USE_OPENFRAMEWORKS_TYPES
+//--------------------------------------------------------------
+void BaseModel::removeProperty(string property, ofPoint value){
+    map<string, ofPoint>::iterator it = ofPointProps.find(property);
+    if(it != ofPointProps.end()){
+        ofPointProps.erase(it);
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------
+void BaseModel::removeProperty(string property, ofRectangle value){
+    map<string, ofRectangle>::iterator it = ofRectangleProps.find(property);
+    if(it != ofRectangleProps.end()){
+        ofRectangleProps.erase(it);
+        return true;
+    }
+    return false;
+}
+#endif
+
 // overloaded property removers for vector of PoD
 //--------------------------------------------------------------
 void BaseModel::removeProperty(string property, vector<int> value){
@@ -220,6 +266,28 @@ void BaseModel::removeProperty(string property, vector<bool> value){
     return false;
 }
 
+#ifdef USE_OPENFRAMEWORKS_TYPES
+//--------------------------------------------------------------
+void BaseModel::removeProperty(string property, vector<ofPoint> value){
+    map<string, vector<ofPoint> >::iterator it = ofPointVecProps.find(property);
+    if(it != ofPointVecProps.end()){
+        ofPointVecProps.erase(it);
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------
+void BaseModel::removeProperty(string property, vector<ofRectangle> value){
+    map<string, vector<ofRectangle> >::iterator it = ofRectangleVecProps.find(property);
+    if(it != ofRectangleVecProps.end()){
+        ofRectangleVecProps.erase(it);
+        return true;
+    }
+    return false;
+}
+#endif
+
 //--------------------------------------------------------------
 void BaseModel::removeAllProperties(){
     intProps.clear();
@@ -230,6 +298,12 @@ void BaseModel::removeAllProperties(){
     floatVecProps.clear();
     stringVecProps.clear();
     boolVecProps.clear();
+#ifdef USE_OPENFRAMEWORKS_TYPES
+    ofPointProps.clear();
+    ofRectangleProps.clear();
+    ofPointVecProps.clear();
+    ofRectangleVecProps.clear();
+#endif
 }
 
 //--------------------------------------------------------------
@@ -260,6 +334,24 @@ string BaseModel::getAllPropsAsString(){
         os << pad(first) << " = " << pad(second) << " (" << type << ")" << endl;
     }
     
+#ifdef USE_OPENFRAMEWORKS_TYPES
+    for(map<string, ofPoint>::iterator it = ofPointProps.begin(); it != ofPointProps.end(); it++){
+        string first = it->first;
+        string second = "(" + ofToString(it->second.x) + "," + ofToString(it->second.y) + "," + ofToString(it->second.z) + ")";
+        string type = "p";
+        os << pad(first) << " = " << pad(second) << " (" << type << ")" << endl;
+    }
+    
+    for(map<string, ofRectangle>::iterator it = ofRectangleProps.begin(); it != ofRectangleProps.end(); it++){
+        string first = it->first;
+        string second = "(" + ofToString(it->second.x) + "," + ofToString(it->second.y) + "," + ofToString(it->second.width) + "," + ofToString(it->second.height) + ")";
+        string type = "p";
+        os << pad(first) << " = " << pad(second) << " (" << type << ")" << endl;
+    }
+#endif
+    
+    
+    
     int vecPrintSizeLimit = 4;
     
     for(map<string, vector<int> >::iterator it = intVecProps.begin(); it != intVecProps.end(); it++){
@@ -281,6 +373,7 @@ string BaseModel::getAllPropsAsString(){
         string type = "v(" + ofToString(it->second.size()) + ")<i>";
         os << pad(first) << " = " << second << " (" << type << ")" << endl;
     }
+    
     for(map<string, vector<float> >::iterator it = floatVecProps.begin(); it != floatVecProps.end(); it++){
         string first = it->first;
         string second = "";
@@ -300,6 +393,7 @@ string BaseModel::getAllPropsAsString(){
         string type = "v(" + ofToString(it->second.size()) + ")<f>";
         os << pad(first) << " = " << second << " (" << type << ")" << endl;
     }
+    
     for(map<string, vector<string> >::iterator it = stringVecProps.begin(); it != stringVecProps.end(); it++){
         string first = it->first;
         string second = "";
@@ -319,6 +413,7 @@ string BaseModel::getAllPropsAsString(){
         string type = "v(" + ofToString(it->second.size()) + ")<s>";
         os << pad(first) << " = " << second << " (" << type << ")" << endl;
     }
+    
     for(map<string, vector<bool> >::iterator it = boolVecProps.begin(); it != boolVecProps.end(); it++){
         string first = it->first;
         string second = "";
@@ -339,6 +434,50 @@ string BaseModel::getAllPropsAsString(){
         string type = "v(" + ofToString(it->second.size()) + ")<b>";
         os << pad(first) << " = " << second << " (" << type << ")" << endl;
     }
+    
+#ifdef USE_OPENFRAMEWORKS_TYPES
+    for(map<string, vector<ofPoint> >::iterator it = ofPointVecProps.begin(); it != ofPointVecProps.end(); it++){
+        string first = it->first;
+        string second = "";
+        bool dotted = false;
+        for(int i = 0; i < it->second.size(); i++){
+            if(i > floor(vecPrintSizeLimit/2.0) && i < it->second.size() - floor(vecPrintSizeLimit/2.0)){
+                if(!dotted){
+                    second += " ... ";
+                    dotted = true;
+                }
+                continue;
+            }else{
+                if(i > 0) second += ", ";
+                second += "(" + ofToString(it->second[i].x) + "," + ofToString(it->second[i].y) + "," + ofToString(it->second[i].z) + ")";
+            }
+        }
+        string type = "v(" + ofToString(it->second.size()) + ")<p>";
+        os << pad(first) << " = " << second << " (" << type << ")" << endl;
+    }
+    
+    for(map<string, vector<ofRectangle> >::iterator it = ofRectangleVecProps.begin(); it != ofRectangleVecProps.end(); it++){
+        string first = it->first;
+        string second = "";
+        bool dotted = false;
+        for(int i = 0; i < it->second.size(); i++){
+            if(i > floor(vecPrintSizeLimit/2.0) && i < it->second.size() - floor(vecPrintSizeLimit/2.0)){
+                if(!dotted){
+                    second += " ... ";
+                    dotted = true;
+                }
+                continue;
+            }else{
+                if(i > 0) second += ", ";
+                second += "(" + ofToString(it->second[i].x) + "," + ofToString(it->second[i].y) + "," + ofToString(it->second[i].width) + "," + ofToString(it->second[i].height) + ")";
+            }
+        }
+        string type = "v(" + ofToString(it->second.size()) + ")<r>";
+        os << pad(first) << " = " << second << " (" << type << ")" << endl;
+    }
+    
+#endif
+    
     return os.str();
 }
 
