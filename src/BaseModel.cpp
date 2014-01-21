@@ -289,6 +289,13 @@ void BaseModel::removeProperty(string property, vector<ofRectangle> value){
 #endif
 
 //--------------------------------------------------------------
+void BaseModel::toggleProperty(string property){
+    map<string, bool>::iterator it = boolProps.find(property);
+    assert(it != boolProps.end());
+    it->second = !it->second;
+}
+
+//--------------------------------------------------------------
 void BaseModel::removeAllProperties(){
     intProps.clear();
     floatProps.clear();

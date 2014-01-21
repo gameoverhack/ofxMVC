@@ -224,6 +224,8 @@ public:
     void removeProperty(string property, vector<ofRectangle> value);
 #endif
     
+    void toggleProperty(string property);
+    
     friend ostream& operator<< (ostream &os, BaseModel &bm);
     
     string getAllPropsAsString();
