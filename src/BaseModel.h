@@ -18,6 +18,8 @@
 #include "SerializationUtils.h"
 #include "States.h"
 #include <libproc.h>
+#import <ifaddrs.h>
+#import <arpa/inet.h>
 
 class BaseModel {
     
@@ -232,6 +234,7 @@ public:
     
     string getApplicationPath();
     string getApplicationName();
+    string getIPAddress();
     
     bool operator==(const BaseModel& other) {
         return (intProps == other.intProps &&
