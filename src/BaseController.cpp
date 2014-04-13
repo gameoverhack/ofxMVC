@@ -14,5 +14,5 @@ BaseController::BaseController(){
 
 //--------------------------------------------------------------
 BaseController::~BaseController(){
-    ofxLogVerbose() << "Destroying BaseController" << endl;
+    //ofxLogVerbose() << "Destroying BaseController" << endl;
 }
