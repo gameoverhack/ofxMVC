@@ -538,7 +538,7 @@ string BaseModel::getIPAddress(){
                 string name = temp_addr->ifa_name;
                 string addr = inet_ntoa(((struct sockaddr_in *)temp_addr->ifa_addr)->sin_addr); // pdp_ip0
                 cout << "NAME: " << name << " ADDR: " << addr << endl;
-                if(name == "en0" || name == "en1") {
+                if(name.find("en") != string::npos) {
                     
                     // Interface is the wifi connection on the iPhone
                     wifiAddress = addr;
