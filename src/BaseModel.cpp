@@ -37,11 +37,7 @@ void BaseModel::reset(){
     //reset defaults
     padLength = 15;
     applicationName = applicationPath = "";
-    // clean up memeory
-    intProps.clear();
-    floatProps.clear();
-    stringProps.clear();
-    boolProps.clear();
+    removeAllProperties();
 }
 
 //--------------------------------------------------------------
