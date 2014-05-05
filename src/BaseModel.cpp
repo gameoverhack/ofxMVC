@@ -9,13 +9,13 @@
 
 //--------------------------------------------------------------
 BaseModel::BaseModel() {
-    //ofxLogNotice() << "Constructing BaseModel" << endl;
+    ofxLogVerbose() << "Constructing BaseModel" << endl;
     reset();
 }
 
 //--------------------------------------------------------------
 BaseModel::~BaseModel() {
-    ofxLogNotice() << "Destroying BaseModel" << endl;
+    ofxLogVerbose() << "Destroying BaseModel" << endl;
     reset();
 }
 
