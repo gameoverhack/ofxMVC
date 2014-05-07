@@ -33,6 +33,7 @@ bool BaseModel::load(string filename, ArchiveType archiveType){
     Serializer.loadClass(filename, (*this), archiveType);
 }
 
+//--------------------------------------------------------------
 void BaseModel::reset(){
     //reset defaults
     padLength = 15;
@@ -85,6 +86,79 @@ string BaseModel::getAllStatesAsString(){
     return os.str();
 }
 
+#ifdef USE_OFXUI
+
+//--------------------------------------------------------------
+void BaseModel::setupGui(string label, float x, float y, float w, float h){
+    gLabel = label;
+    gui = new ofxUIScrollableCanvas(0, 0, w, h);
+    gui->addLabel(gLabel);
+    gui->addSpacer();
+    gui->setScrollAreaToScreen();
+    gui->setScrollableDirections(false, true);
+    gui->disableAppDrawCallback();
+    for(int i = 0; i < guitypes.size(); i++){
+        addGuiElement(guitypes[i]);
+    }
+    setGuiPosition(x, y);
+}
+
+//--------------------------------------------------------------
+void BaseModel::setGuiPosition(ofPoint p){
+    gui->setPosition(p.x, p.y);
+}
+
+//--------------------------------------------------------------
+void BaseModel::setGuiPosition(float x, float y){
+    gui->setPosition(x, y);
+}
+
+//--------------------------------------------------------------
+void BaseModel::setGuiLabel(string label){
+    ((ofxUILabel *)gui->getWidget(gLabel))->setLabel(label);
+    gLabel = label;
+}
+
+//--------------------------------------------------------------
+ofxUIRectangle* BaseModel::getGuiRect(){
+    return gui->getRect();
+}
+
+//--------------------------------------------------------------
+ofxUIScrollableCanvas * BaseModel::getGui(){
+    return gui;
+}
+
+//--------------------------------------------------------------
+void BaseModel::addGuiElement(UIType t){
+    
+    if(gui->getWidget(t.name) == NULL){
+        switch (t.wtype) {
+            case OFX_UI_WIDGET_INTSLIDER_H:
+                gui->addIntSlider(t.name, t.min, t.max, &intProps[t.name]);
+                break;
+            case OFX_UI_WIDGET_SLIDER_H:
+                gui->addSlider(t.name, t.min, t.max, &floatProps[t.name]);
+                break;
+            case OFX_UI_WIDGET_TEXTINPUT:
+                gui->addTextInput(t.name, &stringProps[t.name])->setAutoClear(false);
+                break;
+            case OFX_UI_WIDGET_TOGGLE:
+                gui->addToggle(t.name, &boolProps[t.name]);
+                break;
+            default:
+                assert(false);
+                break;
+        }
+        gui->addSpacer();
+        gui->setHeight(gui->getWidget(t.name)->getRect()->getMaxY() + gui->getWidget(t.name)->getPaddingRect()->getMaxY());
+    }else{
+        assert(false); // have to have unique name!!!
+    }
+    
+}
+#endif
+
 /********************************************************
  * Getters and setters for simple int, float, string	*
  * properties using boost::any and std::map. These		*
@@ -94,23 +168,73 @@ string BaseModel::getAllStatesAsString(){
 
 // overloaded property setters for PoD
 //--------------------------------------------------------------
-void BaseModel::setProperty(string property, int value){
+void BaseModel::setProperty(string property, int value, bool bGui, int gMin, int gMax){
     intProps[property] = value;
+#ifdef USE_OFXUI
+    if(bGui && gui->getWidget(property) == NULL){
+        assert(gMin < gMax);
+        UIType t;
+        t.name = property;
+        t.wtype = OFX_UI_WIDGET_INTSLIDER_H;
+        t.ptype = OFX_MVC_TYPE_INT;
+        t.min = gMin;
+        t.max = gMax;
+        guitypes.push_back(t);
+        addGuiElement(t);
+    }
+#endif
 }
 
 //--------------------------------------------------------------
-void BaseModel::setProperty(string property, float value){
+void BaseModel::setProperty(string property, float value, bool bGui, float gMin, float gMax){
     floatProps[property] = value;
+#ifdef USE_OFXUI
+    if(bGui && gui->getWidget(property) == NULL){
+        assert(gMin < gMax);
+        UIType t;
+        t.name = property;
+        t.wtype = OFX_UI_WIDGET_SLIDER_H;
+        t.ptype = OFX_MVC_TYPE_FLOAT;
+        t.min = gMin;
+        t.max = gMax;
+        guitypes.push_back(t);
+        addGuiElement(t);
+    }
+#endif
 }
 
 //--------------------------------------------------------------
-void BaseModel::setProperty(string property, string value){
+void BaseModel::setProperty(string property, string value, bool bGui){
     stringProps[property] = value;
+#ifdef USE_OFXUI
+    if(bGui && gui->getWidget(property) == NULL){
+        UIType t;
+        t.name = property;
+        t.wtype = OFX_UI_WIDGET_TEXTINPUT;
+        t.ptype = OFX_MVC_TYPE_STRING;
+        t.min = 0;
+        t.max = 0;
+        guitypes.push_back(t);
+        addGuiElement(t);
+    }
+#endif
 }
 
 //--------------------------------------------------------------
-void BaseModel::setProperty(string property, bool value){
+void BaseModel::setProperty(string property, bool value, bool bGui){
     boolProps[property] = value;
+#ifdef USE_OFXUI
+    if(bGui && gui->getWidget(property) == NULL){
+        UIType t;
+        t.name = property;
+        t.wtype = OFX_UI_WIDGET_TOGGLE;
+        t.ptype = OFX_MVC_TYPE_BOOL;
+        t.min = 0;
+        t.max = 0;
+        guitypes.push_back(t);
+        addGuiElement(t);
+    }
+#endif
 }
 
 #ifdef USE_OPENFRAMEWORKS_TYPES
@@ -306,6 +430,9 @@ void BaseModel::removeAllProperties(){
     ofRectangleProps.clear();
     ofPointVecProps.clear();
     ofRectangleVecProps.clear();
+#endif
+#ifdef USE_OFXUI
+    guitypes.clear();
 #endif
 }
 

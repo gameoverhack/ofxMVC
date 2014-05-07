@@ -34,6 +34,40 @@ template <class T> T* Singleton<T>::m_pInstance=NULL;
 
 //#define USE_OPENFRAMEWORKS_TYPES 1
 
+#define USE_OFXUI 1
+
+#ifdef USE_OFXUI
+#include "ofxUI.h"
+
+enum ofxMVCPropertyType{
+    OFX_MVC_TYPE_INT = 0,
+    OFX_MVC_TYPE_FLOAT,
+    OFX_MVC_TYPE_STRING,
+    OFX_MVC_TYPE_BOOL,
+    OFX_MVC_TYPE_VINT = 0,
+    OFX_MVC_TYPE_VFLOAT,
+    OFX_MVC_TYPE_VSTRING,
+    OFX_MVC_TYPE_VBOOL
+#ifdef USE_OPENFRAMEWORKS_TYPES
+    ,
+    OFX_MVC_TYPE_POINT,
+    OFX_MVC_TYPE_RECTANGLE,
+    OFX_MVC_TYPE_COLOR,
+    OFX_MVC_TYPE_VPOINT,
+    OFX_MVC_TYPE_VRECTANGLE,
+    OFX_MVC_TYPE_VCOLOR
+#endif
+};
+
+typedef struct{
+    string name;
+    ofxUIWidgetType wtype;
+    ofxMVCPropertyType ptype;
+    double min;
+    double max;
+} UIType;
+#endif
+
 #ifdef USE_OPENFRAMEWORKS_TYPES
 #include "ofTypes.h"
 #endif
@@ -65,10 +99,10 @@ public:
     string getAllStatesAsString();
     
     // generic property getter/setters for PoD
-	void setProperty(string property, int value);
-    void setProperty(string property, float value);
-    void setProperty(string property, string value);
-    void setProperty(string property, bool value);
+	void setProperty(string property, int value, bool bGui = false, int gMin = 0, int gMax = 0);
+    void setProperty(string property, float value, bool bGui = false, float gMin = 0, float gMax = 0);
+    void setProperty(string property, string value, bool bGui = false);
+    void setProperty(string property, bool value, bool bGui = false);
 #ifdef USE_OPENFRAMEWORKS_TYPES
 	void setProperty(string property, ofPoint);
     void setProperty(string property, ofRectangle);
@@ -312,7 +346,24 @@ public:
         return *this;
     }
     
+#ifdef USE_OFXUI
+    void setupGui(string label = "BaseModel", float x = 0.0f, float y = 0.0f, float w = 200.0f, float h = 0.0f);
+    void setGuiPosition(ofPoint p);
+    void setGuiPosition(float x, float y);
+    void setGuiLabel(string label);
+    ofxUIRectangle* getGuiRect();
+    ofxUIScrollableCanvas * getGui();
+#endif
+    
 protected:
+    
+#ifdef USE_OFXUI
+    ofxUIScrollableCanvas * gui;
+    vector<UIType> guitypes;
+    string gLabel;
+    void addGuiElement(UIType t);
+#endif
+    
     
     // state storage
     map<string, StateGroup> stateGroups;
@@ -356,6 +407,9 @@ protected:
         ar & BOOST_SERIALIZATION_NVP(ofPointVecProps);
         ar & BOOST_SERIALIZATION_NVP(ofRectangleVecProps);
 #endif
+#ifdef USE_OFXUI
+        ar & BOOST_SERIALIZATION_NVP(guitypes);
+#endif
 	}
     
 private:
@@ -369,6 +423,23 @@ inline ostream& operator<<(ostream& os, BaseModel &bm){
 	os << bm.getAllPropsAsString();
 	return os;
 };
+
+#ifdef USE_OFXUI
+namespace boost {
+    namespace serialization {
+        
+        template<class Archive>
+        void serialize(Archive & ar, UIType & u, const unsigned int version) {
+            ar & BOOST_SERIALIZATION_NVP(u.name);
+            ar & BOOST_SERIALIZATION_NVP(u.wtype);
+            ar & BOOST_SERIALIZATION_NVP(u.ptype);
+            ar & BOOST_SERIALIZATION_NVP(u.min);
+            ar & BOOST_SERIALIZATION_NVP(u.max);
+        };
+        
+    };
+};
+#endif
 
 #ifdef USE_OPENFRAMEWORKS_TYPES
 namespace boost {
