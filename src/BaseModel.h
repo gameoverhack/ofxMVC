@@ -321,15 +321,20 @@ public:
         // enable ADL (not necessary in our case, but good practice)
         using std::swap;
         cout << "Swapping base model" << endl;
+        
+        swap(first.applicationName, second.applicationName);
+        swap(first.applicationPath, second.applicationPath);
+        
         swap(first.intProps, second.intProps);
         swap(first.floatProps, second.floatProps);
         swap(first.stringProps, second.stringProps);
-        swap(first.intVecProps, second.intVecProps);
+        swap(first.boolProps, second.boolProps);
         
+        swap(first.intVecProps, second.intVecProps);
         swap(first.floatVecProps, second.floatVecProps);
         swap(first.stringVecProps, second.stringVecProps);
         swap(first.boolVecProps, second.boolVecProps);
-        swap(first.intProps, second.intProps);
+        
 
 #ifdef USE_OPENFRAMEWORKS_TYPES
         swap(first.ofPointProps, second.ofPointProps);
@@ -338,13 +343,48 @@ public:
         swap(first.ofRectangleVecProps, second.ofRectangleVecProps);
 #endif
         
+#ifdef USE_OFXUI
+        swap(first.gui, second.gui);
+        swap(first.guitypes, second.guitypes);
+        swap(first.gLabel, second.gLabel);
+#endif
     }
     
     BaseModel& operator=(BaseModel other) {
-        cout << "Copying base model" << endl;
+        cout << "Assigning base model" << endl;
         swap(*this, other);
         return *this;
     }
+    
+//    BaseModel( const BaseModel& other ){
+//        cout << "Copying base model" << endl;
+//        
+//        applicationName = other.applicationName;
+//        applicationPath = other.applicationPath;
+//        
+//        intProps = other.intProps;
+//        floatProps = other.floatProps;
+//        stringProps = other.stringProps;
+//        boolProps = other.boolProps;
+//        
+//        intVecProps = other.intVecProps;
+//        floatVecProps = other.floatVecProps;
+//        stringVecProps = other.stringVecProps;
+//        boolVecProps = other.boolVecProps;
+//        
+//#ifdef USE_OPENFRAMEWORKS_TYPES
+////        ofPointProps = other.ofPointProps;
+////        ofRectangleProps = other.ofRectangleProps;
+////        ofPointVecProps = other.ofPointVecProps;
+////        ofRectangleVecProps = other.ofRectangleVecProps;
+//#endif
+//        
+//#ifdef USE_OFXUI
+////        gui = other.gui;
+////        guitypes = other.guitypes;
+////        gLabel = other.gLabel;
+//#endif
+//    }
     
 #ifdef USE_OFXUI
     void setupGui(string label = "BaseModel", float x = 0.0f, float y = 0.0f, float w = 200.0f, float h = 0.0f);
@@ -412,10 +452,10 @@ protected:
 #endif
 	}
     
-private:
-    
     string applicationName;
     string applicationPath;
+    
+private:
     
 };
 
