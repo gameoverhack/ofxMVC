@@ -10,7 +10,12 @@
 
 //--------------------------------------------------------------
 BaseWarp::~BaseWarp(){
-    
+
+}
+
+//--------------------------------------------------------------
+void BaseWarp::allocate(int w, int h){
+    ofLogWarning() << "BaseWarp does not implement allocate with width and height";
 }
 
 //--------------------------------------------------------------

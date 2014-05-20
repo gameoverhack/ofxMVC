@@ -59,7 +59,7 @@ public:
         group.clear();
     };
     
-    bool addState(State state){
+    void addState(State state){
         assert(!getStateExists(state));
         group.push_back(state);
     };

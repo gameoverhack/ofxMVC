@@ -26,22 +26,22 @@ class BaseView : public ofxFensterListener {
 class BaseView {
 #endif
 public:
-	
+
     BaseView();
     virtual ~BaseView();
-    
+
     void setup(float width, float height, ViewOption viewOptions, string viewName);
     virtual void update() = 0;
-    
+
     void draw();
     void draw(float x, float y);
     void draw(float x, float y, float w, float h);
-    
+
     void begin();
     void end();
-    
+
     void setPosition(float x, float y, float w, float h);
-    
+
     float getWidth();
     float getHeight();
     string getName();
@@ -50,36 +50,36 @@ public:
 #endif
     ofFbo&          getFBO();
     ofTexture&      getTextureReference();
-    
+
     template<class T>
     T& getWarp(){
         return *(static_cast<T*>(warp));
     }
-    
+
     void windowResized(int w, int h);
-    
+
     bool getIsSetup();
-    
+
 protected:
-	
+
     inline bool     getIsOption(ViewOption viewOption);
-    
+
     ViewOption      viewOptions;
 #ifdef USE_FENSTER
     ofxFenster*     window;
 #endif
     BaseWarp*       warp;
-    
+
     float           width, displayWidth;
     float           height, displayHeight;
-    
+
     string          viewName;
-    
+
     bool            bIsSetup;
     bool            bNoWarp;
-    
+
 private:
-	
+
 };
 
 #endif

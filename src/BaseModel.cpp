@@ -25,12 +25,12 @@ BaseModel::~BaseModel() {
 
 //--------------------------------------------------------------
 bool BaseModel::save(string filename, ArchiveType archiveType){
-    Serializer.saveClass(filename, (*this), archiveType);
+    return Serializer.saveClass(filename, (*this), archiveType);
 }
 
 //--------------------------------------------------------------
 bool BaseModel::load(string filename, ArchiveType archiveType){
-    Serializer.loadClass(filename, (*this), archiveType);
+    return Serializer.loadClass(filename, (*this), archiveType);
 }
 
 //--------------------------------------------------------------
@@ -131,7 +131,7 @@ ofxUIScrollableCanvas * BaseModel::getGui(){
 
 //--------------------------------------------------------------
 void BaseModel::addGuiElement(UIType t){
-    
+
     if(gui->getWidget(t.name) == NULL){
         switch (t.wtype) {
             case OFX_UI_WIDGET_INTSLIDER_H:
@@ -155,7 +155,7 @@ void BaseModel::addGuiElement(UIType t){
     }else{
         assert(false); // have to have unique name!!!
     }
-    
+
 }
 #endif
 
@@ -284,7 +284,7 @@ void BaseModel::setProperty(string property, vector<ofRectangle> value){
 
 // overloaded property removers for vector of PoD
 //--------------------------------------------------------------
-void BaseModel::removeProperty(string property, int value){
+bool BaseModel::removeProperty(string property, int value){
     map<string, int>::iterator it = intProps.find(property);
     if(it != intProps.end()){
         intProps.erase(it);
@@ -294,7 +294,7 @@ void BaseModel::removeProperty(string property, int value){
 }
 
 //--------------------------------------------------------------
-void BaseModel::removeProperty(string property, float value){
+bool BaseModel::removeProperty(string property, float value){
     map<string, float>::iterator it = floatProps.find(property);
     if(it != floatProps.end()){
         floatProps.erase(it);
@@ -304,7 +304,7 @@ void BaseModel::removeProperty(string property, float value){
 }
 
 //--------------------------------------------------------------
-void BaseModel::removeProperty(string property, string value){
+bool BaseModel::removeProperty(string property, string value){
     map<string, string>::iterator it = stringProps.find(property);
     if(it != stringProps.end()){
         stringProps.erase(it);
@@ -314,7 +314,7 @@ void BaseModel::removeProperty(string property, string value){
 }
 
 //--------------------------------------------------------------
-void BaseModel::removeProperty(string property, bool value){
+bool BaseModel::removeProperty(string property, bool value){
     map<string, bool>::iterator it = boolProps.find(property);
     if(it != boolProps.end()){
         boolProps.erase(it);
@@ -325,7 +325,7 @@ void BaseModel::removeProperty(string property, bool value){
 
 #ifdef USE_OPENFRAMEWORKS_TYPES
 //--------------------------------------------------------------
-void BaseModel::removeProperty(string property, ofPoint value){
+bool BaseModel::removeProperty(string property, ofPoint value){
     map<string, ofPoint>::iterator it = ofPointProps.find(property);
     if(it != ofPointProps.end()){
         ofPointProps.erase(it);
@@ -335,7 +335,7 @@ void BaseModel::removeProperty(string property, ofPoint value){
 }
 
 //--------------------------------------------------------------
-void BaseModel::removeProperty(string property, ofRectangle value){
+bool BaseModel::removeProperty(string property, ofRectangle value){
     map<string, ofRectangle>::iterator it = ofRectangleProps.find(property);
     if(it != ofRectangleProps.end()){
         ofRectangleProps.erase(it);
@@ -347,7 +347,7 @@ void BaseModel::removeProperty(string property, ofRectangle value){
 
 // overloaded property removers for vector of PoD
 //--------------------------------------------------------------
-void BaseModel::removeProperty(string property, vector<int> value){
+bool BaseModel::removeProperty(string property, vector<int> value){
     map<string, vector<int> >::iterator it = intVecProps.find(property);
     if(it != intVecProps.end()){
         intVecProps.erase(it);
@@ -357,7 +357,7 @@ void BaseModel::removeProperty(string property, vector<int> value){
 }
 
 //--------------------------------------------------------------
-void BaseModel::removeProperty(string property, vector<float> value){
+bool BaseModel::removeProperty(string property, vector<float> value){
     map<string, vector<float> >::iterator it = floatVecProps.find(property);
     if(it != floatVecProps.end()){
         floatVecProps.erase(it);
@@ -367,7 +367,7 @@ void BaseModel::removeProperty(string property, vector<float> value){
 }
 
 //--------------------------------------------------------------
-void BaseModel::removeProperty(string property, vector<string> value){
+bool BaseModel::removeProperty(string property, vector<string> value){
     map<string, vector<string> >::iterator it = stringVecProps.find(property);
     if(it != stringVecProps.end()){
         stringVecProps.erase(it);
@@ -377,7 +377,7 @@ void BaseModel::removeProperty(string property, vector<string> value){
 }
 
 //--------------------------------------------------------------
-void BaseModel::removeProperty(string property, vector<bool> value){
+bool BaseModel::removeProperty(string property, vector<bool> value){
     map<string, vector<bool> >::iterator it = boolVecProps.find(property);
     if(it != boolVecProps.end()){
         boolVecProps.erase(it);
@@ -388,7 +388,7 @@ void BaseModel::removeProperty(string property, vector<bool> value){
 
 #ifdef USE_OPENFRAMEWORKS_TYPES
 //--------------------------------------------------------------
-void BaseModel::removeProperty(string property, vector<ofPoint> value){
+bool BaseModel::removeProperty(string property, vector<ofPoint> value){
     map<string, vector<ofPoint> >::iterator it = ofPointVecProps.find(property);
     if(it != ofPointVecProps.end()){
         ofPointVecProps.erase(it);
@@ -398,7 +398,7 @@ void BaseModel::removeProperty(string property, vector<ofPoint> value){
 }
 
 //--------------------------------------------------------------
-void BaseModel::removeProperty(string property, vector<ofRectangle> value){
+bool BaseModel::removeProperty(string property, vector<ofRectangle> value){
     map<string, vector<ofRectangle> >::iterator it = ofRectangleVecProps.find(property);
     if(it != ofRectangleVecProps.end()){
         ofRectangleVecProps.erase(it);
@@ -463,7 +463,7 @@ string BaseModel::getAllPropsAsString(){
         string type = "b";
         os << pad(first) << " = " << pad(second) << " (" << type << ")" << endl;
     }
-    
+
 #ifdef USE_OPENFRAMEWORKS_TYPES
     for(map<string, ofPoint>::iterator it = ofPointProps.begin(); it != ofPointProps.end(); it++){
         string first = it->first;
@@ -471,7 +471,7 @@ string BaseModel::getAllPropsAsString(){
         string type = "p";
         os << pad(first) << " = " << pad(second) << " (" << type << ")" << endl;
     }
-    
+
     for(map<string, ofRectangle>::iterator it = ofRectangleProps.begin(); it != ofRectangleProps.end(); it++){
         string first = it->first;
         string second = "(" + ofToString(it->second.x) + "," + ofToString(it->second.y) + "," + ofToString(it->second.width) + "," + ofToString(it->second.height) + ")";
@@ -479,11 +479,11 @@ string BaseModel::getAllPropsAsString(){
         os << pad(first) << " = " << pad(second) << " (" << type << ")" << endl;
     }
 #endif
-    
-    
-    
+
+
+
     int vecPrintSizeLimit = 4;
-    
+
     for(map<string, vector<int> >::iterator it = intVecProps.begin(); it != intVecProps.end(); it++){
         string first = it->first;
         string second = "";
@@ -503,7 +503,7 @@ string BaseModel::getAllPropsAsString(){
         string type = "v(" + ofToString(it->second.size()) + ")<i>";
         os << pad(first) << " = " << second << " (" << type << ")" << endl;
     }
-    
+
     for(map<string, vector<float> >::iterator it = floatVecProps.begin(); it != floatVecProps.end(); it++){
         string first = it->first;
         string second = "";
@@ -523,7 +523,7 @@ string BaseModel::getAllPropsAsString(){
         string type = "v(" + ofToString(it->second.size()) + ")<f>";
         os << pad(first) << " = " << second << " (" << type << ")" << endl;
     }
-    
+
     for(map<string, vector<string> >::iterator it = stringVecProps.begin(); it != stringVecProps.end(); it++){
         string first = it->first;
         string second = "";
@@ -543,12 +543,12 @@ string BaseModel::getAllPropsAsString(){
         string type = "v(" + ofToString(it->second.size()) + ")<s>";
         os << pad(first) << " = " << second << " (" << type << ")" << endl;
     }
-    
+
     for(map<string, vector<bool> >::iterator it = boolVecProps.begin(); it != boolVecProps.end(); it++){
         string first = it->first;
         string second = "";
         bool dotted = false;
-        
+
         for(int i = 0; i < it->second.size(); i++){
             if(i > floor(vecPrintSizeLimit/2.0) && i < it->second.size() - floor(vecPrintSizeLimit/2.0)){
                 if(!dotted){
@@ -564,7 +564,7 @@ string BaseModel::getAllPropsAsString(){
         string type = "v(" + ofToString(it->second.size()) + ")<b>";
         os << pad(first) << " = " << second << " (" << type << ")" << endl;
     }
-    
+
 #ifdef USE_OPENFRAMEWORKS_TYPES
     for(map<string, vector<ofPoint> >::iterator it = ofPointVecProps.begin(); it != ofPointVecProps.end(); it++){
         string first = it->first;
@@ -585,7 +585,7 @@ string BaseModel::getAllPropsAsString(){
         string type = "v(" + ofToString(it->second.size()) + ")<p>";
         os << pad(first) << " = " << second << " (" << type << ")" << endl;
     }
-    
+
     for(map<string, vector<ofRectangle> >::iterator it = ofRectangleVecProps.begin(); it != ofRectangleVecProps.end(); it++){
         string first = it->first;
         string second = "";
@@ -605,12 +605,13 @@ string BaseModel::getAllPropsAsString(){
         string type = "v(" + ofToString(it->second.size()) + ")<r>";
         os << pad(first) << " = " << second << " (" << type << ")" << endl;
     }
-    
+
 #endif
-    
+
     return os.str();
 }
 
+#ifdef TARGET_OSX
 //--------------------------------------------------------------
 string BaseModel::getApplicationName(){
     if(applicationName == ""){
@@ -624,7 +625,7 @@ string BaseModel::getApplicationPath(){
     // from http://stackoverflow.com/questions/799679/programatically-retrieving-the-absolute-path-of-an-os-x-command-line-app/1024933#1024933
     if(applicationPath == ""){
         int ret;
-        pid_t pid; 
+        pid_t pid;
         char pathbuf[1024];
         pid = getpid();
         ret = proc_pidpath (pid, pathbuf, sizeof(pathbuf));
@@ -637,20 +638,21 @@ string BaseModel::getApplicationPath(){
         vector<string> pathParts = ofSplitString(applicationPath, "/");
         applicationName = pathParts[pathParts.size() - 1];
     }
-    
+
     return applicationPath;
 }
 
+
 //--------------------------------------------------------------
 string BaseModel::getIPAddress(){
-    
+
     // TODO: currently working for wifi but does it work for ethernet etc?
-    
+
     struct ifaddrs *interfaces = NULL;
     struct ifaddrs *temp_addr = NULL;
     string wifiAddress = "";
     string cellAddress = "";
-    
+
     // retrieve the current interfaces - returns 0 on success
     if(!getifaddrs(&interfaces)) {
         // Loop through linked list of interfaces
@@ -662,12 +664,12 @@ string BaseModel::getIPAddress(){
                 string addr = inet_ntoa(((struct sockaddr_in *)temp_addr->ifa_addr)->sin_addr); // pdp_ip0
                 cout << "NAME: " << name << " ADDR: " << addr << endl;
                 if(name.find("en") != string::npos) {
-                    
+
                     // Interface is the wifi connection on the iPhone
                     wifiAddress = addr;
-                    
+
                 } else
-                    
+
                     if(name == "pdp_ip0") {
                         // Interface is the cell connection on the iPhone
                         cellAddress = addr;
@@ -681,22 +683,23 @@ string BaseModel::getIPAddress(){
     string addr = wifiAddress != "" ? wifiAddress : cellAddress;
     return addr != "" ? addr : "0.0.0.0";
 }
+#endif
 
 //--------------------------------------------------------------
 inline string BaseModel::pad(string & t_string) {
-    
+
 	// possibly a more elegant sprintf solution for this but can't work out how to
 	// dynamically set sprintf(objWithWhiteSpace, "%" + ofToString(_padLength) + "s", objectName) ???
-    
+
 	string paddedString = t_string;
 	int _padLength = 0;
-	
+
 	// check length and adjust overall pad if the objectName is longer than the current padLength
 	if (t_string.size() > padLength && t_string.size() <= 25) padLength = t_string.size();
-	
+
 	_padLength = padLength - t_string.size();
-	
+
 	for (int i = 0; i < _padLength; i++) paddedString += " ";
-	
+
 	return paddedString;
 }
