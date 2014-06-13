@@ -72,6 +72,7 @@ typedef struct{
 #include "ofTypes.h"
 #endif
 
+#include "BaseGui.h"
 #include "ofxLogger.h"
 #include "SerializationUtils.h"
 #include "States.h"
