@@ -13,6 +13,7 @@
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/map.hpp>
+#include <boost/serialization/unordered_map.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
@@ -94,7 +95,7 @@ public:
             
             return true;
         } catch (boost::archive::archive_exception e) {
-            ofxLogError() << "Error unserializing class from file: " << filePath << endl;;
+            ofxLogError() << "Error serializing class from file: " << filePath << " - " << e.what() << endl;
             return false;
         }
         
@@ -135,7 +136,7 @@ public:
             }
             return true;
         } catch (std::exception e) {
-            ofxLogError() << "Error serializing class from file: " << filePath << endl;;
+            ofxLogError() << "Error serializing class to file: " << filePath << " - " << e.what() << endl;
             return false;
         }
     }

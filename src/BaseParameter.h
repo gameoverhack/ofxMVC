@@ -5,11 +5,23 @@
 //  Copyright (c) 2014 trace media. All rights reserved.
 //
 
-#ifndef __H_BASEPARAMETER
-#define __H_BASEPARAMETER
+//#ifndef __H_BASEPARAMETER
+//#define __H_BASEPARAMETER
+
+#pragma once
+
+#include <boost/serialization/serialization.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
 
 #include "ofxLogger.h"
-#include "SerializationUtils.h"
 
 template<typename T>
 class Parameter;
@@ -18,14 +30,19 @@ class BaseParameter{
     
 public:
     
-    BaseParameter(){cout << "Create BaseParameter" << endl;}
-    virtual ~BaseParameter(){cout << "Destroy BaseParameter" << endl;}
+    BaseParameter(){};//cout << "Create BaseParameter" << endl;}
+    virtual ~BaseParameter(){};//cout << "Destroy BaseParameter" << endl;}
     
     virtual string getName() const{return "";}
 	virtual void setName(string name){}
 	virtual string toString() const{}
 	virtual void fromString(string str){}
 	virtual string type() const{return typeid(*this).name();}
+    
+//    template<typename T>
+//	Parameter<T> * cast(){
+//		return static_cast<Parameter<T> *>(*this);
+//	}
     
     template<typename T>
 	Parameter<T> & cast(){
@@ -38,6 +55,7 @@ public:
 	}
     
 	friend ostream& operator<<(ostream& os, const BaseParameter& p);
+//    friend ostream& operator<<(ostream& os, const BaseParameter* p);
     
     friend class boost::serialization::access;
 	template<class Archive>
@@ -49,57 +67,62 @@ public:
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(BaseParameter)
 
+//ostream& operator<<(ostream& os, const BaseParameter* p){
+//	os << p->toString();
+//	return os;
+//};
+
 ostream& operator<<(ostream& os, const BaseParameter& p){
 	os << p.toString();
 	return os;
-}
+};
 
-#endif
-
-#ifndef __H_PARAMETER
-#define __H_PARAMETER
+//#endif
+//
+//#ifndef __H_PARAMETER
+//#define __H_PARAMETER
 
 template <typename T>
 class Parameter : public BaseParameter{
     
 public:
     
-	Parameter():name(""), value(new T), bUseEvents(true), bTrackChanges(true), min(NULL), max(NULL){}
+	Parameter():name(""), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){}
     
-	Parameter(const string& _name):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(NULL), max(NULL){}
+	Parameter(const string& _name):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){}
     
-	Parameter(const string& _name, const T& _value):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(NULL), max(NULL){
+	Parameter(const string& _name, const T& _value):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){
 		set(_value);
 	}
     
-    Parameter(const string& _name, const T& _value, const T& _min, const T& _max):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(NULL), max(NULL){
+    Parameter(const string& _name, const T& _value, const T& _min, const T& _max):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){
         setRange(_min, _max);
 		set(_value);
 	}
     
-	Parameter(const string& _name, T& _value):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(NULL), max(NULL){
+	Parameter(const string& _name, T& _value):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){
 		set(_value);
 	}
     
-    Parameter(const string& _name, T& _value, const T& _min, const T& _max):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(NULL), max(NULL){
+    Parameter(const string& _name, T& _value, const T& _min, const T& _max):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){
         setRange(_min, _max);
 		set(_value);
 	}
     
-	Parameter(const string& _name, T* _value, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(NULL), max(NULL){
+	Parameter(const string& _name, T* _value, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){
 		set(_value, bSetValue);
 	}
     
-    Parameter(const string& _name, T* _value, const T& _min, const T& _max, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(NULL), max(NULL){
+    Parameter(const string& _name, T* _value, const T& _min, const T& _max, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){
         setRange(_min, _max);
 		set(_value, bSetValue);
 	}
     
-	Parameter(const string& _name, T** _value, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(NULL), max(NULL){
+	Parameter(const string& _name, T** _value, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){
 		set(_value, bSetValue);
 	}
     
-    Parameter(const string& _name, T** _value, const T& _min, const T& _max, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(NULL), max(NULL){
+    Parameter(const string& _name, T** _value, const T& _min, const T& _max, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){
         setRange(_min, _max);
 		set(_value, bSetValue);
 	}
@@ -112,6 +135,10 @@ public:
         bUseEvents = b;
     }
     
+    void setTrackChanges(bool b){
+        bTrackChanges = b;
+    }
+    
     void setName(const string& _name){
 		name = _name;
 	}
@@ -121,7 +148,7 @@ public:
 	}
     
     string toString() const{
-        return ofToString(*value);
+        return ofToString((*value), 6);
     }
     
     //    void fromString(string str){
@@ -182,19 +209,15 @@ public:
 	}
     
     void setRange(const T& _min, const T& _max){
-        if(min == NULL) min = new T;
-        if(max == NULL) max = new T;
         (*min) = _min;
         (*max) = _max;
     }
     
     void setMin(const T& _min){
-        if(min == NULL) min = new T;
         (*min) = _min;
     }
     
     void setMax(const T& _max){
-        if(max == NULL) max = new T;
         (*max) = _max;
     }
     
@@ -264,7 +287,7 @@ public:
 protected:
     
     virtual inline void valueChanged(){
-        //if(min != NULL && max != NULL) (*value) = CLAMP((*value), (*min), (*max));
+        //if(min != max) (*value) = CLAMP((*value), (*min), (*max));
         if(bTrackChanges) lvalue = (*value);
         if(bUseEvents) ofNotifyEvent(parameterEvent, (*value), this);
     }
@@ -278,20 +301,39 @@ protected:
     bool bUseEvents;
     bool bTrackChanges;
     
-	friend class boost::serialization::access;
+    friend class boost::serialization::access;
+    
 	template<class Archive>
-    void serialize(Archive & ar, const unsigned int version){
+    void save(Archive & ar, const unsigned int version) const{
         
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(BaseParameter);
         ar & BOOST_SERIALIZATION_NVP(name);
         ar & BOOST_SERIALIZATION_NVP((*value));
-        if(min != NULL) ar & BOOST_SERIALIZATION_NVP((*min));
-        if(max != NULL) ar & BOOST_SERIALIZATION_NVP((*max));
+        ar & BOOST_SERIALIZATION_NVP((*min));
+        ar & BOOST_SERIALIZATION_NVP((*max));
         ar & BOOST_SERIALIZATION_NVP(bUseEvents);
+        ar & BOOST_SERIALIZATION_NVP(bTrackChanges);
+
+	};
+    
+	template<class Archive>
+    void load(Archive & ar, const unsigned int version){
         
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(BaseParameter);
+        ar & BOOST_SERIALIZATION_NVP(name);
+        ar & BOOST_SERIALIZATION_NVP((*value));
+        ar & BOOST_SERIALIZATION_NVP((*min));
+        ar & BOOST_SERIALIZATION_NVP((*max));
+        ar & BOOST_SERIALIZATION_NVP(bUseEvents);
+        ar & BOOST_SERIALIZATION_NVP(bTrackChanges);
+
 	};
 	
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    
 };
+
+//BOOST_CLASS_VERSION(BaseParameter, 0)
 
 template<typename T>
 inline const T * Parameter<T>::operator->() const{
@@ -427,4 +469,4 @@ Parameter<T> & Parameter<T>::operator>>=(const OtherType & v){
 	return *this;
 }
 
-#endif
+//#endif

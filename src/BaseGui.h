@@ -958,7 +958,7 @@ protected:
     }
     
     inline void valueChanged(){
-        if(min != NULL && max != NULL) (*value) = CLAMP((*value), (*min), (*max));
+        if(min != max) (*value) = CLAMP((*value), (*min), (*max));
         bValueChanged = true;
         calculateHandle();
         Parameter::valueChanged();
@@ -1015,7 +1015,11 @@ protected:
         
         ostringstream os; os.precision(3); os.setf( std::ios::fixed, std:: ios::floatfield );
         os << Parameter::getReference();
-        
+//        ofEnableAlphaBlending();
+//        kGuiFont.getFontTexture().bind();
+//        kGuiFont.getStringMesh(os.str(), borderBounds.x + borderBounds.width - 7 * 8, borderSize + 16).draw();
+//        kGuiFont.getFontTexture().unbind();
+//        ofDisableAlphaBlending();
         kGuiFont.drawString(os.str(), borderBounds.x + borderBounds.width - 7 * 8, borderSize + 16);
     }
     
