@@ -54,22 +54,136 @@ public:
     BaseModel();
     virtual ~BaseModel();
 
+    void reset();
     bool save(const string& filname, const ArchiveType& archiveType);
     bool load(const string& filname, const ArchiveType& archiveType);
-    void reset();
+    
+    
+    template<typename T>
+    inline void addParameter(Parameter<T>* parameter, bool bAddToGui){
+        
+        //bAddToGui
+        if(true) addParameterGui((BaseParameter*)parameter);
 
+        parameter->setUseEvents(false);
+        parameter->setTrackChanges(false);
+        parameters.insert(pair<string, BaseParameter*>(parameter->getName(), parameter));
+        orderedParaVec.push_back(parameter);
+        orderedParaMap.insert(pair<string, int>(parameter->getName(), orderedParaVec.size() - 1));
+    }
+    
+    inline void addParameterGui(BaseParameter* parameter){
+        
+//        cout << "Type: " << parameter->type() << " " << typeid(parameter).name() << " == " << typeid(Parameter<T>).name() << endl;
+        
+        if(gui == NULL){
+            cout << "Add GUI" << endl;
+            gui = new Gui;
+            gui->setResizeMode(BaseWidget::RESIZEMODE_ABS);
+            gui->setup(0, 0, 600, 800);
+            gui->setLabel("GUI");
+            
+            toggles = new Canvas;
+            toggles->setLabel("toggles");
+            toggles->setResizeMode(BaseWidget::RESIZEMODE_ABS);
+            toggles->setup(0, 0, 300, gui->getHeight() - 40);
+            sliders = new Canvas;
+            sliders->setLabel("sliders");
+            sliders->setResizeMode(BaseWidget::RESIZEMODE_ABS);
+            sliders->setup(300, 0, 300, gui->getHeight() - 40);
+            
+            gui->add(toggles);
+            gui->add(sliders);
+            
+        }
+        
+        if(parameter->type() == typeid(Parameter<int>).name() && ((Parameter<int>*)parameter)->isRangeSet()){
+            cout << "Add slider int" << endl;
+            cout << ((Parameter<int>*)parameter)->getMin() << " == " << ((Parameter<int>*)parameter)->getMax() << endl;
+            IntSlider* slider = new IntSlider;
+            slider->setLabel(parameter->getName());
+            slider->setup(0, sliders->getLayoutHeight(), 300, 20);
+            cout << sliders->getLayoutHeight() << endl;
+            slider->set((Parameter<int>*)parameter);
+            sliders->add(slider);
+            sliders->dirty();
+            
+        }
+        
+        if(parameter->type() == typeid(Parameter<float>).name() && ((Parameter<float>*)parameter)->isRangeSet()){
+            cout << "Add slider float" << endl;
+            
+            FloatSlider* slider = new FloatSlider;
+            slider->setLabel(parameter->getName());
+            slider->setup(0, sliders->getLayoutHeight(), 300, 20);
+            slider->set((Parameter<float>*)parameter);
+            sliders->add(slider);
+            sliders->dirty();
+            
+        }
+        
+        if(parameter->type() == typeid(Parameter<double>).name() && ((Parameter<double>*)parameter)->isRangeSet()){
+            cout << "Add slider double" << endl;
+        }
+        
+        if(parameter->type() == typeid(Parameter<string>).name()){
+            cout << "Add label string" << endl;
+        }
+        
+        if(parameter->type() == typeid(Parameter<char>).name()){
+            cout << "Add label char" << endl;
+        }
+        
+        if(parameter->type() == typeid(Parameter<bool>).name()){
+            cout << "Add toggle bool" << endl;
+            
+            Toggle* toggle = new Toggle;
+            toggle->setLabel(parameter->getName());
+            toggle->setup(0, toggles->getLayoutHeight(), 300, 20);
+            toggle->set((Parameter<bool>*)parameter);
+            toggles->add(toggle);
+            toggles->dirty();
+            
+        }
+        
+        if(parameter->type() == typeid(Parameter<ofPoint>).name()){
+            cout << "Add ? ofPoint" << endl;
+        }
+        
+        if(parameter->type() == typeid(Parameter<ofRectangle>).name()){
+            cout << "Add ? ofRectangle" << endl;
+        }
+        
+        if(parameter->type() == typeid(Parameter<ofColor>).name()){
+            cout << "Add ? ofColor" << endl;
+        }
+        
+    }
+    
     template<typename T>
-    void setProperty(const string& name, T* value){
+    void setProperty(const string& name, T* value, bool bAddToGui = false){
         
         unordered_map<string, BaseParameter*>::iterator it = parameters.find(name);
         
         if(it == parameters.end()){
             Parameter<T>* parameter = new Parameter<T>(name, value);
-            parameter->setUseEvents(false);
-            parameter->setTrackChanges(false);
-            parameters.insert(pair<string, BaseParameter*>(name, parameter));
-            orderedParaVec.push_back(parameter);
-            orderedParaMap.insert(pair<string, int>(name, orderedParaVec.size() - 1));
+            addParameter(parameter, bAddToGui);
+        }else{
+            Parameter<T>* parameter = (Parameter<T>*)it->second;
+            parameter->set(value);
+        }
+        
+    }
+    
+    
+    template<typename T>
+    void setProperty(const string& name, const T& value, bool bAddToGui = false){
+        
+        unordered_map<string, BaseParameter*>::iterator it = parameters.find(name);
+        
+        if(it == parameters.end()){
+            Parameter<T>* parameter = new Parameter<T>(name, value);
+            addParameter(parameter, bAddToGui);
         }else{
             Parameter<T>* parameter = (Parameter<T>*)it->second;
             parameter->set(value);
@@ -78,42 +192,35 @@ public:
     }
     
     template<typename T>
-    void setProperty(const string& name, const T& value){
-        
-        unordered_map<string, BaseParameter*>::iterator it = parameters.find(name);
-        
-        if(it == parameters.end()){
-            Parameter<T>* parameter = new Parameter<T>(name, value);
-            parameter->setUseEvents(false);
-            parameter->setTrackChanges(false);
-            parameters.insert(pair<string, BaseParameter*>(name, parameter));
-            orderedParaVec.push_back(parameter);
-            orderedParaMap.insert(pair<string, int>(name, orderedParaVec.size() - 1));
-        }else{
-            Parameter<T>* parameter = (Parameter<T>*)it->second;
-            parameter->set(value);
-        }
-        
-    }
-    
-    template<typename T>
-    inline void setProperty(const string& name, const T& value, const T& min, const T& max){
+    inline void setProperty(const string& name, T* value, const T& min, const T& max, bool bAddToGui = false){
         
         unordered_map<string, BaseParameter*>::iterator it = parameters.find(name);
         
         if(it == parameters.end()){
             Parameter<T>* parameter = new Parameter<T>(name, value, min, max);
-            parameter->setUseEvents(false);
-            parameter->setTrackChanges(false);
-            parameters.insert(pair<string, BaseParameter*>(name, parameter));
-            orderedParaVec.push_back(parameter);
-            orderedParaMap.insert(pair<string, int>(name, orderedParaVec.size() - 1));
+            addParameter(parameter, bAddToGui);
         }else{
             Parameter<T>* parameter = (Parameter<T>*)it->second;
             parameter->set(value);
         }
         
     }
+    
+    template<typename T>
+    inline void setProperty(const string& name, const T& value, const T& min, const T& max, bool bAddToGui = false){
+        
+        unordered_map<string, BaseParameter*>::iterator it = parameters.find(name);
+        
+        if(it == parameters.end()){
+            Parameter<T>* parameter = new Parameter<T>(name, value, min, max);
+            addParameter(parameter, bAddToGui);
+        }else{
+            Parameter<T>* parameter = (Parameter<T>*)it->second;
+            parameter->set(value);
+        }
+        
+    }
+    
     
     template<typename T>
     inline Parameter<T>* getProperty(const string& name){
@@ -129,10 +236,12 @@ public:
         
     }
     
+    
     template<typename T>
     inline const T& getPropertyReference(const string& name){
         return getProperty<T>(name)->getReference();
     }
+    
     
     inline bool addStateGroup(const StateGroup& stateGroup){
         unordered_map<string, StateGroup>::iterator it = stateGroups.find(stateGroup.name);
@@ -224,6 +333,7 @@ public:
         
     }
 
+    
     inline string getAllStatesAsString(){
         ostringstream os;
         for(unordered_map<string, StateGroup>::iterator it = stateGroups.begin(); it != stateGroups.end(); it++){
@@ -248,8 +358,10 @@ public:
         return os.str();
     }
     
+    
     friend ostream& operator<< (ostream &os, BaseModel &bm);
 
+    
 #ifdef TARGET_OSX
 
     inline string getApplicationName(){
@@ -259,6 +371,7 @@ public:
         return applicationName;
     }
 
+    
     inline string getApplicationPath(){
         // from http://stackoverflow.com/questions/799679/programatically-retrieving-the-absolute-path-of-an-os-x-command-line-app/1024933#1024933
         if(applicationPath == ""){
@@ -279,6 +392,7 @@ public:
         
         return applicationPath;
     }
+    
     
     inline string getIPAddress(){
         
@@ -331,7 +445,7 @@ public:
 //    }
 
     friend void swap(BaseModel& first, BaseModel& second){
-        // enable ADL (not necessary in our case, but good practice)
+
         using std::swap;
         cout << "Swapping base model" << endl;
 
@@ -340,14 +454,20 @@ public:
         swap(first.stateGroups, second.stateGroups);
     }
 
+    
     BaseModel& operator=(BaseModel other) {
         cout << "Assigning base model" << endl;
         swap(*this, other);
         return *this;
     }
 
+    Gui* getGui(){
+        return gui;
+    }
+    
 protected:
-
+    
+    
     inline string pad(string & t_string) {
         
         // possibly a more elegant sprintf solution for this but can't work out how to
@@ -366,6 +486,11 @@ protected:
         return paddedString;
     }
     
+    // gui
+    Gui * gui = NULL;
+    Canvas* toggles;
+    Canvas* sliders;
+    
     // parameter storage
     unordered_map<string, BaseParameter*> parameters;
     unordered_map<string, int> orderedParaMap;
@@ -377,12 +502,37 @@ protected:
 	int padLength;
 
     friend class boost::serialization::access;
+    
 	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version){
+    void save(Archive & ar, const unsigned int version) const{
+        
         ar & BOOST_SERIALIZATION_NVP(parameters);
         ar & BOOST_SERIALIZATION_NVP(orderedParaVec);
         ar & BOOST_SERIALIZATION_NVP(orderedParaMap);
-	}
+        
+	};
+    
+	template<class Archive>
+    void load(Archive & ar, const unsigned int version){
+        
+        ar & BOOST_SERIALIZATION_NVP(parameters);
+        ar & BOOST_SERIALIZATION_NVP(orderedParaVec);
+        ar & BOOST_SERIALIZATION_NVP(orderedParaMap);
+        
+        for(int i = 0; i < orderedParaVec.size(); i++){
+            addParameterGui(orderedParaVec[i]);
+        }
+        
+	};
+	
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    
+//	template<class Archive>
+//	void serialize(Archive & ar, const unsigned int version){
+//        ar & BOOST_SERIALIZATION_NVP(parameters);
+//        ar & BOOST_SERIALIZATION_NVP(orderedParaVec);
+//        ar & BOOST_SERIALIZATION_NVP(orderedParaMap);
+//	}
 
     string applicationName;
     string applicationPath;

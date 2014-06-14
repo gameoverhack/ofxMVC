@@ -37,7 +37,7 @@ public:
 	virtual void setName(string name){}
 	virtual string toString() const{}
 	virtual void fromString(string str){}
-	virtual string type() const{return typeid(*this).name();}
+	virtual string type() const{}
     
 //    template<typename T>
 //	Parameter<T> * cast(){
@@ -55,7 +55,7 @@ public:
 	}
     
 	friend ostream& operator<<(ostream& os, const BaseParameter& p);
-//    friend ostream& operator<<(ostream& os, const BaseParameter* p);
+    friend ostream& operator<<(ostream& os, const BaseParameter* p);
     
     friend class boost::serialization::access;
 	template<class Archive>
@@ -67,10 +67,10 @@ public:
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(BaseParameter)
 
-//ostream& operator<<(ostream& os, const BaseParameter* p){
-//	os << p->toString();
-//	return os;
-//};
+ostream& operator<<(ostream& os, const BaseParameter* p){
+	os << p->toString();
+	return os;
+};
 
 ostream& operator<<(ostream& os, const BaseParameter& p){
 	os << p.toString();
@@ -87,42 +87,42 @@ class Parameter : public BaseParameter{
     
 public:
     
-	Parameter():name(""), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){}
+	Parameter():name(""), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){}
     
-	Parameter(const string& _name):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){}
+	Parameter(const string& _name):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){}
     
-	Parameter(const string& _name, const T& _value):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){
+	Parameter(const string& _name, const T& _value):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
 		set(_value);
 	}
     
-    Parameter(const string& _name, const T& _value, const T& _min, const T& _max):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){
+    Parameter(const string& _name, const T& _value, const T& _min, const T& _max):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
         setRange(_min, _max);
 		set(_value);
 	}
     
-	Parameter(const string& _name, T& _value):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){
+	Parameter(const string& _name, T& _value):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
 		set(_value);
 	}
     
-    Parameter(const string& _name, T& _value, const T& _min, const T& _max):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){
+    Parameter(const string& _name, T& _value, const T& _min, const T& _max):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
         setRange(_min, _max);
 		set(_value);
 	}
     
-	Parameter(const string& _name, T* _value, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){
+	Parameter(const string& _name, T* _value, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
 		set(_value, bSetValue);
 	}
     
-    Parameter(const string& _name, T* _value, const T& _min, const T& _max, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){
+    Parameter(const string& _name, T* _value, const T& _min, const T& _max, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
         setRange(_min, _max);
 		set(_value, bSetValue);
 	}
     
-	Parameter(const string& _name, T** _value, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){
+	Parameter(const string& _name, T** _value, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
 		set(_value, bSetValue);
 	}
     
-    Parameter(const string& _name, T** _value, const T& _min, const T& _max, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T){
+    Parameter(const string& _name, T** _value, const T& _min, const T& _max, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
         setRange(_min, _max);
 		set(_value, bSetValue);
 	}
@@ -130,6 +130,10 @@ public:
 	~Parameter(){
 		delete value;
 	}
+    
+    string type() const{
+        return typeName;
+    }
     
     void setUseEvents(bool b){
         bUseEvents = b;
@@ -208,17 +212,28 @@ public:
         valueChanged();
 	}
     
+    void set(Parameter<T>* other){
+        name = other->name;
+		value = other->value;
+        min = other->min;
+        max = other->max;
+        valueChanged();
+	}
+    
     void setRange(const T& _min, const T& _max){
         (*min) = _min;
         (*max) = _max;
+        bMinSet = bMaxSet = true;
     }
     
     void setMin(const T& _min){
         (*min) = _min;
+        bMinSet = true;
     }
     
     void setMax(const T& _max){
         (*max) = _max;
+        bMaxSet = true;
     }
     
     T getMin(){
@@ -229,6 +244,10 @@ public:
         return (*max);
     }
     
+    bool isRangeSet(){
+        return (bMinSet && bMaxSet);
+    }
+    
     T getValue() const{
 		return (*value);
 	}
@@ -237,9 +256,9 @@ public:
 		return (*value);
 	}
     
-    //	T* getPointer(){
-    //		return value;
-    //	}
+    T* getPointer(){
+    		return value;
+    }
     
     void inline update(){
         if(bTrackChanges){
@@ -298,38 +317,63 @@ protected:
     T * min;
     T * max;
     
+    string typeName;
+    
+    bool bMinSet;
+    bool bMaxSet;
     bool bUseEvents;
     bool bTrackChanges;
     
     friend class boost::serialization::access;
-    
-	template<class Archive>
-    void save(Archive & ar, const unsigned int version) const{
+
+    template<class Archive>
+	void serialize(Archive & ar, const unsigned int version){
         
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(BaseParameter);
         ar & BOOST_SERIALIZATION_NVP(name);
         ar & BOOST_SERIALIZATION_NVP((*value));
         ar & BOOST_SERIALIZATION_NVP((*min));
         ar & BOOST_SERIALIZATION_NVP((*max));
+        ar & BOOST_SERIALIZATION_NVP(typeName);
+        ar & BOOST_SERIALIZATION_NVP(bMinSet);
+        ar & BOOST_SERIALIZATION_NVP(bMaxSet);
         ar & BOOST_SERIALIZATION_NVP(bUseEvents);
         ar & BOOST_SERIALIZATION_NVP(bTrackChanges);
 
-	};
-    
-	template<class Archive>
-    void load(Archive & ar, const unsigned int version){
         
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(BaseParameter);
-        ar & BOOST_SERIALIZATION_NVP(name);
-        ar & BOOST_SERIALIZATION_NVP((*value));
-        ar & BOOST_SERIALIZATION_NVP((*min));
-        ar & BOOST_SERIALIZATION_NVP((*max));
-        ar & BOOST_SERIALIZATION_NVP(bUseEvents);
-        ar & BOOST_SERIALIZATION_NVP(bTrackChanges);
+	}
 
-	};
-	
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
+//	template<class Archive>
+//    void save(Archive & ar, const unsigned int version) const{
+//        
+//        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(BaseParameter);
+//        ar & BOOST_SERIALIZATION_NVP(name);
+//        ar & BOOST_SERIALIZATION_NVP((*value));
+//        ar & BOOST_SERIALIZATION_NVP((*min));
+//        ar & BOOST_SERIALIZATION_NVP((*max));
+//        ar & BOOST_SERIALIZATION_NVP(bMinSet);
+//        ar & BOOST_SERIALIZATION_NVP(bMaxSet);
+//        ar & BOOST_SERIALIZATION_NVP(bUseEvents);
+//        ar & BOOST_SERIALIZATION_NVP(bTrackChanges);
+//
+//	};
+//    
+//	template<class Archive>
+//    void load(Archive & ar, const unsigned int version){
+//        
+//        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(BaseParameter);
+//        ar & BOOST_SERIALIZATION_NVP(name);
+//        ar & BOOST_SERIALIZATION_NVP((*value));
+//        ar & BOOST_SERIALIZATION_NVP((*min));
+//        ar & BOOST_SERIALIZATION_NVP((*max));
+//        ar & BOOST_SERIALIZATION_NVP(bMinSet);
+//        ar & BOOST_SERIALIZATION_NVP(bMaxSet);
+//        ar & BOOST_SERIALIZATION_NVP(bUseEvents);
+//        ar & BOOST_SERIALIZATION_NVP(bTrackChanges);
+//
+//	};
+//	
+//    BOOST_SERIALIZATION_SPLIT_MEMBER()
     
 };
 

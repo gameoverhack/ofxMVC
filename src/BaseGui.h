@@ -19,6 +19,9 @@ class Button;
 class ListButton;
 class Toggle;
 class Slider;
+class IntSlider;
+class FloatSlider;
+class DoubleSlider;
 class Canvas;
 class Image;
 class Matrix;
@@ -59,6 +62,7 @@ public:
     borderBounds(ofRectangle(0,0,0,0)),
     displayScissorBounds(ofRectangle(0,0,0,0)),
     layoutDisplayScissorBounds(ofRectangle(0,0,0,0)),
+    widgetsBounds(ofRectangle(0,0,0,0)),
     resizeMode(RESIZEMODE_FIT),
     bUseFBO(false),
     bVisible(true),
@@ -296,6 +300,9 @@ public:
                 
         }
         
+        widgetsBounds.width = MAX(widgetsBounds.width, widget->relativeBounds.x + widget->relativeBounds.width + borderSize);
+        widgetsBounds.height = MAX(widgetsBounds.height, widget->relativeBounds.y + widget->relativeBounds.height + borderSize);
+        
         bUseFBO = true;
         
         recalculate();
@@ -346,6 +353,14 @@ public:
         return relativeBounds.height;
     }
     
+    virtual float getLayoutWidth(){
+        return widgetsBounds.width;
+    }
+    
+    virtual float getLayoutHeight(){
+        return widgetsBounds.height;
+    }
+    
     virtual inline bool inside(float x, float y){
         return displayBounds.inside(x, y);
     }
@@ -374,11 +389,20 @@ public:
     friend class ListButton;
     friend class Toggle;
     friend class Slider;
+    friend class IntSlider;
+    friend class FloatSlider;
+    friend class DoubleSlider;
     friend class Canvas;
     friend class Image;
     friend class Matrix;
     friend class List;
     friend class Gui;
+    
+    void dirty(){
+        recalculate();
+        bPixelsDirty = true;
+        
+    }
     
 protected:
     
@@ -655,6 +679,7 @@ protected:
     ofRectangle layoutDisplayBounds;
     ofRectangle layoutDisplayScissorBounds;
     ofRectangle displayScissorBounds;
+    ofRectangle widgetsBounds;
     
     bool bDrawBorder;
     bool bDrawBackground;
@@ -934,12 +959,12 @@ protected:
     
 };
 
-class Slider:public BaseWidget, public Parameter<float>{
+class IntSlider:public BaseWidget, virtual public Parameter<int>{
     
 public:
     
-    Slider(){
-        name = "Slider";
+    IntSlider(){
+        name = "IntSlider";
     }
     
     void setLabel(string _label){
@@ -959,21 +984,9 @@ protected:
     
     inline void valueChanged(){
         if(min != max) (*value) = CLAMP((*value), (*min), (*max));
+        calculateHandle();
         bValueChanged = true;
-        calculateHandle();
         Parameter::valueChanged();
-    }
-    
-    inline void layout(){
-        
-        activeBounds = borderBounds;
-        
-        handleBounds.y = borderBounds.y + borderSize;
-        handleBounds.width = borderSize;
-        handleBounds.height = borderBounds.height - borderSize;
-        
-        calculateHandle();
-        
     }
     
     inline void calculateHandle(){
@@ -988,6 +1001,25 @@ protected:
             double pct = (double)(kGuiMousePosition.x - displayBounds.x - activeBounds.x) / (double)(activeBounds.width);
             set((double)((*max) - (*min)) * pct);
         }
+    }
+    
+    inline void drawWidget(){
+        ofSetColor(cOutline);
+        ofLine(handleBounds.position.x, handleBounds.position.y, handleBounds.position.x, handleBounds.position.y + handleBounds.height);
+        ostringstream os; os.precision(3); os.setf( std::ios::fixed, std:: ios::floatfield );
+        os << Parameter::getReference();
+        kGuiFont.drawString(os.str(), borderBounds.x + borderBounds.width - 7 * 8, borderSize + 16);
+    }
+    
+    inline void layout(){
+        
+        activeBounds = borderBounds;
+        
+        handleBounds.y = borderBounds.y + borderSize;
+        handleBounds.width = borderSize;
+        handleBounds.height = borderBounds.height - borderSize;
+        
+        calculateHandle();
         
     }
     
@@ -1003,24 +1035,166 @@ protected:
         calculateValue();
     }
     
-    inline void drawWidget(){
-        
-        if(bValueChanged){
-            ofSetColor(255);
-        }else{
-            ofSetColor(cOutline);
+    ofRectangle activeBounds;
+    ofRectangle handleBounds;
+    
+};
+
+class FloatSlider:public BaseWidget, virtual public Parameter<float>{
+    
+public:
+    
+    FloatSlider(){
+        name = "FloatSlider";
+    }
+    
+    void setLabel(string _label){
+        if(label == NULL){
+            label = new Label;
+            label->setParent(this);
         }
-        
+        label->setLabel(_label);
+        recalculate();
+    }
+    
+protected:
+    
+    inline void update(){
+        Parameter::update();
+    }
+    
+    inline void valueChanged(){
+        if(min != max) (*value) = CLAMP((*value), (*min), (*max));
+        calculateHandle();
+        bValueChanged = true;
+        Parameter::valueChanged();
+    }
+    
+    inline void calculateHandle(){
+        if(min != NULL && max != NULL){
+            double pct = (double)(*value) / (double)((*max) - (*min));
+            handleBounds.x = activeBounds.width * pct;
+        }
+    }
+    
+    inline void calculateValue(){
+        if(min != NULL && max != NULL){
+            double pct = (double)(kGuiMousePosition.x - displayBounds.x - activeBounds.x) / (double)(activeBounds.width);
+            set((double)((*max) - (*min)) * pct);
+        }
+    }
+    
+    inline void drawWidget(){
+        ofSetColor(cOutline);
         ofLine(handleBounds.position.x, handleBounds.position.y, handleBounds.position.x, handleBounds.position.y + handleBounds.height);
-        
         ostringstream os; os.precision(3); os.setf( std::ios::fixed, std:: ios::floatfield );
         os << Parameter::getReference();
-//        ofEnableAlphaBlending();
-//        kGuiFont.getFontTexture().bind();
-//        kGuiFont.getStringMesh(os.str(), borderBounds.x + borderBounds.width - 7 * 8, borderSize + 16).draw();
-//        kGuiFont.getFontTexture().unbind();
-//        ofDisableAlphaBlending();
         kGuiFont.drawString(os.str(), borderBounds.x + borderBounds.width - 7 * 8, borderSize + 16);
+    }
+    
+    inline void layout(){
+        
+        activeBounds = borderBounds;
+        
+        handleBounds.y = borderBounds.y + borderSize;
+        handleBounds.width = borderSize;
+        handleBounds.height = borderBounds.height - borderSize;
+        
+        calculateHandle();
+        
+    }
+    
+    inline void mouseDrag(){
+        calculateValue();
+    }
+    
+    inline void mouseDown(){
+        calculateValue();
+    }
+    
+    inline void mouseUp(bool bInside){
+        calculateValue();
+    }
+    
+    ofRectangle activeBounds;
+    ofRectangle handleBounds;
+    
+};
+
+class DoubleSlider:public BaseWidget, virtual public Parameter<double>{
+    
+public:
+    
+    DoubleSlider(){
+        name = "DoubleSlider";
+    }
+    
+    void setLabel(string _label){
+        if(label == NULL){
+            label = new Label;
+            label->setParent(this);
+        }
+        label->setLabel(_label);
+        recalculate();
+    }
+    
+protected:
+    
+    inline void update(){
+        Parameter::update();
+    }
+    
+    inline void valueChanged(){
+        if(min != max) (*value) = CLAMP((*value), (*min), (*max));
+        calculateHandle();
+        bValueChanged = true;
+        Parameter::valueChanged();
+    }
+    
+    inline void calculateHandle(){
+        if(min != NULL && max != NULL){
+            double pct = (double)(*value) / (double)((*max) - (*min));
+            handleBounds.x = activeBounds.width * pct;
+        }
+    }
+    
+    inline void calculateValue(){
+        if(min != NULL && max != NULL){
+            double pct = (double)(kGuiMousePosition.x - displayBounds.x - activeBounds.x) / (double)(activeBounds.width);
+            set((double)((*max) - (*min)) * pct);
+        }
+    }
+    
+    inline void drawWidget(){
+        ofSetColor(cOutline);
+        ofLine(handleBounds.position.x, handleBounds.position.y, handleBounds.position.x, handleBounds.position.y + handleBounds.height);
+        ostringstream os; os.precision(3); os.setf( std::ios::fixed, std:: ios::floatfield );
+        os << Parameter::getReference();
+        kGuiFont.drawString(os.str(), borderBounds.x + borderBounds.width - 7 * 8, borderSize + 16);
+    }
+    
+    inline void layout(){
+        
+        activeBounds = borderBounds;
+        
+        handleBounds.y = borderBounds.y + borderSize;
+        handleBounds.width = borderSize;
+        handleBounds.height = borderBounds.height - borderSize;
+        
+        calculateHandle();
+        
+    }
+    
+    inline void mouseDrag(){
+        calculateValue();
+    }
+    
+    inline void mouseDown(){
+        calculateValue();
+    }
+    
+    inline void mouseUp(bool bInside){
+        calculateValue();
     }
     
     ofRectangle activeBounds;
@@ -1053,6 +1227,7 @@ public:
         
         if(widgetName != "" && kGuiWidgetMap.find(widgetName) == kGuiWidgetMap.end()){
             kGuiWidgetMap.insert(pair<string, BaseWidget*>(widgetName, widget));
+            cout << "adding: " << widgetName << endl;
             BaseWidget::add(widget);
         }else{
             BaseWidget::add(widget);
@@ -1060,7 +1235,7 @@ public:
         
     }
     
-    inline BaseWidget* get(const string& widgetName){
+    inline BaseWidget* getWidget(const string& widgetName){
         map<string, BaseWidget*>::iterator it = kGuiWidgetMap.find(widgetName);
         if(it != kGuiWidgetMap.end()){
             return it->second;
