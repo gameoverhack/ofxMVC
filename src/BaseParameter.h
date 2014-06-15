@@ -83,6 +83,24 @@ BOOST_SERIALIZATION_ASSUME_ABSTRACT(BaseParameter)
 #define __H_PARAMETER
 
 template <typename T>
+class ParameterEvent{
+
+public:
+
+	ParameterEvent(const string& _name, T* _value) : name(_name), value(_value){};
+
+	//friend ostream& operator<< (ostream &os, ParameterEvent<T> &e);
+
+	string name;
+	T* value;
+};
+
+//inline ostream& operator<<(ostream& os, const ParameterEvent<T> &e){
+//    os << e.name << " " << e.value;
+//    return os;
+//};
+
+template <typename T>
 class Parameter : public BaseParameter{
     
 public:
@@ -301,14 +319,17 @@ public:
 	template<typename OtherType>
 	Parameter<T> & operator>>=(const OtherType & v);
     
-    ofEvent<T> parameterEvent;
-    
+    ofEvent<ParameterEvent<T>> parameterEvent;
+
 protected:
-    
+
     virtual inline void valueChanged(){
         //if(min != max) (*value) = CLAMP((*value), (*min), (*max));
         if(bTrackChanges) lvalue = (*value);
-        if(bUseEvents) ofNotifyEvent(parameterEvent, (*value), this);
+        if(bUseEvents){
+			ParameterEvent<T> e = ParameterEvent<T>(name, value);
+			ofNotifyEvent(parameterEvent, e, this);
+		}
     }
     
 	string name;
@@ -332,48 +353,56 @@ protected:
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(BaseParameter);
         ar & BOOST_SERIALIZATION_NVP(name);
         ar & BOOST_SERIALIZATION_NVP((*value));
-        ar & BOOST_SERIALIZATION_NVP((*min));
-        ar & BOOST_SERIALIZATION_NVP((*max));
         ar & BOOST_SERIALIZATION_NVP(typeName);
         ar & BOOST_SERIALIZATION_NVP(bMinSet);
         ar & BOOST_SERIALIZATION_NVP(bMaxSet);
         ar & BOOST_SERIALIZATION_NVP(bUseEvents);
         ar & BOOST_SERIALIZATION_NVP(bTrackChanges);
 
+		if(isRangeSet()){
+			ar & BOOST_SERIALIZATION_NVP((*min));
+			ar & BOOST_SERIALIZATION_NVP((*max));
+		}
+
         
 	}
 
-//	template<class Archive>
-//    void save(Archive & ar, const unsigned int version) const{
-//        
-//        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(BaseParameter);
-//        ar & BOOST_SERIALIZATION_NVP(name);
-//        ar & BOOST_SERIALIZATION_NVP((*value));
-//        ar & BOOST_SERIALIZATION_NVP((*min));
-//        ar & BOOST_SERIALIZATION_NVP((*max));
-//        ar & BOOST_SERIALIZATION_NVP(bMinSet);
-//        ar & BOOST_SERIALIZATION_NVP(bMaxSet);
-//        ar & BOOST_SERIALIZATION_NVP(bUseEvents);
-//        ar & BOOST_SERIALIZATION_NVP(bTrackChanges);
-//
-//	};
-//    
-//	template<class Archive>
-//    void load(Archive & ar, const unsigned int version){
-//        
-//        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(BaseParameter);
-//        ar & BOOST_SERIALIZATION_NVP(name);
-//        ar & BOOST_SERIALIZATION_NVP((*value));
-//        ar & BOOST_SERIALIZATION_NVP((*min));
-//        ar & BOOST_SERIALIZATION_NVP((*max));
-//        ar & BOOST_SERIALIZATION_NVP(bMinSet);
-//        ar & BOOST_SERIALIZATION_NVP(bMaxSet);
-//        ar & BOOST_SERIALIZATION_NVP(bUseEvents);
-//        ar & BOOST_SERIALIZATION_NVP(bTrackChanges);
-//
-//	};
-//	
-//    BOOST_SERIALIZATION_SPLIT_MEMBER()
+	//template<class Archive>
+ //   void save(Archive & ar, const unsigned int version) const{
+ //       
+ //       ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(BaseParameter);
+ //       ar & BOOST_SERIALIZATION_NVP(name);
+ //       ar & BOOST_SERIALIZATION_NVP((*value));
+ //       ar & BOOST_SERIALIZATION_NVP(typeName);
+ //       ar & BOOST_SERIALIZATION_NVP(bMinSet);
+ //       ar & BOOST_SERIALIZATION_NVP(bMaxSet);
+ //       ar & BOOST_SERIALIZATION_NVP(bUseEvents);
+ //       ar & BOOST_SERIALIZATION_NVP(bTrackChanges);
+
+	//	if(isRangeSet()){
+	//		ar & BOOST_SERIALIZATION_NVP((*min));
+	//		ar & BOOST_SERIALIZATION_NVP((*max));
+	//	}
+
+	//};
+ //   
+	//template<class Archive>
+ //   void load(Archive & ar, const unsigned int version){
+ //       
+ //       ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(BaseParameter);
+ //       ar & BOOST_SERIALIZATION_NVP(name);
+ //       ar & BOOST_SERIALIZATION_NVP((*value));
+ //       ar & BOOST_SERIALIZATION_NVP((*min));
+ //       ar & BOOST_SERIALIZATION_NVP((*max));
+ //       ar & BOOST_SERIALIZATION_NVP(typeName);
+ //       ar & BOOST_SERIALIZATION_NVP(bMinSet);
+ //       ar & BOOST_SERIALIZATION_NVP(bMaxSet);
+ //       ar & BOOST_SERIALIZATION_NVP(bUseEvents);
+ //       ar & BOOST_SERIALIZATION_NVP(bTrackChanges);
+
+	//};
+	//
+ //   BOOST_SERIALIZATION_SPLIT_MEMBER()
     
 };
 

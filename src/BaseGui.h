@@ -5,6 +5,30 @@
 //  Copyright (c) 2014 trace media. All rights reserved.
 //
 
+// Singleton definition
+#ifndef __SINGLETON_HPP_
+#define __SINGLETON_HPP_
+#include "assert.h"
+#include <cstdlib>
+template <class T>
+class Singleton{
+public:
+    static T* Instance() {
+        if(!m_pInstance) m_pInstance = new T;
+        assert(m_pInstance !=NULL);
+        return m_pInstance;
+    };
+protected:
+    Singleton();
+    ~Singleton();
+private:
+    Singleton(Singleton const&);
+    Singleton& operator=(Singleton const&);
+    static T* m_pInstance;
+};
+template <class T> T* Singleton<T>::m_pInstance=NULL;
+#endif
+
 #ifndef __H_BASEGUI
 #define __H_BASEGUI
 
@@ -28,13 +52,26 @@ class Matrix;
 class List;
 class Gui;
 
-static bool kGuiMouseDirty = false;
-static BaseWidget* kGuiActiveWidget = NULL;
-static map<string, BaseWidget*> kGuiWidgetMap;
-static ofPoint kGuiMousePosition = ofPoint(-1, -1);
-static ofPoint kGuiMouseOrigin = ofPoint(-1, -1);
-static ofRectangle kGuiDisplayBounds = ofRectangle(0, 0 ,0, 0);
-static ofTrueTypeFont kGuiFont;
+class GuiStorage{
+
+public:
+
+	GuiStorage(){
+
+	}
+
+	bool kGuiMouseDirty;
+	BaseWidget* kGuiActiveWidget;
+	map<string, BaseWidget*> kGuiWidgetMap;
+	ofPoint kGuiMousePosition;
+	ofPoint kGuiMouseOrigin;
+	ofRectangle kGuiDisplayBounds;
+	ofTrueTypeFont kGuiFont;
+
+};
+
+typedef Singleton<GuiStorage> BaseGuiStorageSingleton;
+static GuiStorage * guiStorage	= BaseGuiStorageSingleton::Instance();
 
 class BaseWidget{
     
@@ -95,10 +132,10 @@ public:
         
         if(!bVisible || !bOnScreen) return;
         
-        if(!isChild() && (inside(kGuiMousePosition.x, kGuiMousePosition.y) || kGuiActiveWidget == this)) checkMouse(this);
+        if(!isChild() && (inside(guiStorage->kGuiMousePosition.x, guiStorage->kGuiMousePosition.y) || guiStorage->kGuiActiveWidget == this)) checkMouse(this);
         
         for(int i = 0; i < widgets.size(); i++){
-            if(inside(kGuiMousePosition.x, kGuiMousePosition.y) || kGuiActiveWidget == widgets[i]) checkMouse(widgets[i]);
+            if(inside(guiStorage->kGuiMousePosition.x, guiStorage->kGuiMousePosition.y) || guiStorage->kGuiActiveWidget == widgets[i]) checkMouse(widgets[i]);
             widgets[i]->update();
         }
         
@@ -480,11 +517,11 @@ protected:
             if(renderBounds.width > relativeBounds.width) layoutDisplayBounds.width = layoutBounds.width - layoutBounds.x;
             if(renderBounds.height > relativeBounds.height) layoutDisplayBounds.height = layoutBounds.height - layoutBounds.y;
             
-            if(!isChild()) kGuiDisplayBounds = displayBounds;
+            if(!isChild()) guiStorage->kGuiDisplayBounds = displayBounds;
             
-            layoutDisplayScissorBounds = layoutDisplayBounds.getIntersection(kGuiDisplayBounds);
+            layoutDisplayScissorBounds = layoutDisplayBounds.getIntersection(guiStorage->kGuiDisplayBounds);
             layoutDisplayScissorBounds.y = ofGetHeight() - layoutDisplayScissorBounds.height - layoutDisplayScissorBounds.y;
-            displayScissorBounds = displayBounds.getIntersection(kGuiDisplayBounds);
+            displayScissorBounds = displayBounds.getIntersection(guiStorage->kGuiDisplayBounds);
             displayScissorBounds.y = ofGetHeight() - displayScissorBounds.height - displayScissorBounds.y;
             
             if(renderBounds.width != fbo.getWidth() || renderBounds.height != fbo.getHeight()){
@@ -500,12 +537,12 @@ protected:
     
     virtual inline void checkMouse(BaseWidget* widget){
         
-        if(kGuiActiveWidget == NULL){
+        if(guiStorage->kGuiActiveWidget == NULL){
             
-            if(kGuiMouseDirty && ofGetMousePressed()){
+            if(guiStorage->kGuiMouseDirty && ofGetMousePressed()){
                 
                 // mouse down on this child of the current widget
-                if(widget->inside(kGuiMousePosition.x, kGuiMousePosition.y)){
+                if(widget->inside(guiStorage->kGuiMousePosition.x, guiStorage->kGuiMousePosition.y)){
                     
                     if(!widget->hasChildren() && ofGetMousePressed(0)){
                         
@@ -515,7 +552,7 @@ protected:
                     }
                     else if(widget->hasChildren() && ofGetMousePressed(0)){
                         
-                        if(widget->labelDisplayBounds.inside(kGuiMousePosition.x, kGuiMousePosition.y)){
+                        if(widget->labelDisplayBounds.inside(guiStorage->kGuiMousePosition.x, guiStorage->kGuiMousePosition.y)){
                             widget->bMove = true;
                             widget->select();
                             //widget->mouseDown();
@@ -523,7 +560,7 @@ protected:
                         
                     }else if(widget->hasChildren() && widget->isChild() && ofGetMousePressed(2)){
                         
-                        if(widget->layoutDisplayBounds.inside(kGuiMousePosition.x, kGuiMousePosition.y)){
+                        if(widget->layoutDisplayBounds.inside(guiStorage->kGuiMousePosition.x, guiStorage->kGuiMousePosition.y)){
                             
                             if(widget->renderBounds.width > widget->layoutBounds.width || widget->renderBounds.height > widget->layoutBounds.height){
                                 widget->bScroll = true;
@@ -535,12 +572,12 @@ protected:
                 }
             }
             
-        }else if(kGuiActiveWidget == widget){
+        }else if(guiStorage->kGuiActiveWidget == widget){
             
             // ...mouse up/drag from this child of the current widget
-            if(widget->inside(kGuiMousePosition.x, kGuiMousePosition.y)){
+            if(widget->inside(guiStorage->kGuiMousePosition.x, guiStorage->kGuiMousePosition.y)){
                 
-                if(kGuiMouseDirty){
+                if(guiStorage->kGuiMouseDirty){
                     
                     if(!widget->bScroll && !widget->bMove){
                         widget->mouseUp(true); // inside
@@ -560,7 +597,7 @@ protected:
                 
             }else{
                 
-                if(kGuiMouseDirty && (widget->bScroll || widget->bMove)){
+                if(guiStorage->kGuiMouseDirty && (widget->bScroll || widget->bMove)){
                     widget->deselect();
                 }else{
                     if(widget->bMove){
@@ -580,15 +617,15 @@ protected:
     }
     
     virtual inline void select(){
-        kGuiMouseDirty = false;
-        kGuiMouseOrigin = kGuiMousePosition;
-        kGuiActiveWidget = this;
+        guiStorage->kGuiMouseDirty = false;
+        guiStorage->kGuiMouseOrigin = guiStorage->kGuiMousePosition;
+        guiStorage->kGuiActiveWidget = this;
     }
     
     virtual inline void deselect(){
-        kGuiMouseDirty = true;
-        kGuiMouseOrigin = ofPoint(-1,1);
-        kGuiActiveWidget = NULL;
+        guiStorage->kGuiMouseDirty = true;
+        guiStorage->kGuiMouseOrigin = ofPoint(-1,1);
+        guiStorage->kGuiActiveWidget = NULL;
         bScroll = false;
         bMove = false;
     }
@@ -710,7 +747,7 @@ protected:
     inline void draw(){
         ofSetColor(cOutline);
         ofNoFill();
-        kGuiFont.drawString(Parameter::getReference(), 0, 14);
+        guiStorage->kGuiFont.drawString(Parameter::getReference(), 0, 14);
     }
     
     inline void update(){
@@ -759,7 +796,7 @@ protected:
     inline void drawWidget(){
         ofSetColor(cOutline);
         ofNoFill();
-        kGuiFont.drawString(Parameter::getReference(), borderSize, borderSize);
+        guiStorage->kGuiFont.drawString(Parameter::getReference(), borderSize, borderSize);
     }
     
 };
@@ -998,7 +1035,7 @@ protected:
     
     inline void calculateValue(){
         if(min != NULL && max != NULL){
-            double pct = (double)(kGuiMousePosition.x - displayBounds.x - activeBounds.x) / (double)(activeBounds.width);
+            double pct = (double)(guiStorage->kGuiMousePosition.x - displayBounds.x - activeBounds.x) / (double)(activeBounds.width);
             set((double)((*max) - (*min)) * pct);
         }
     }
@@ -1008,7 +1045,7 @@ protected:
         ofLine(handleBounds.position.x, handleBounds.position.y, handleBounds.position.x, handleBounds.position.y + handleBounds.height);
         ostringstream os; os.precision(3); os.setf( std::ios::fixed, std:: ios::floatfield );
         os << Parameter::getReference();
-        kGuiFont.drawString(os.str(), borderBounds.x + borderBounds.width - 7 * 8, borderSize + 16);
+        guiStorage->kGuiFont.drawString(os.str(), borderBounds.x + borderBounds.width - 7 * 8, borderSize + 16);
     }
     
     inline void layout(){
@@ -1079,7 +1116,7 @@ protected:
     
     inline void calculateValue(){
         if(min != NULL && max != NULL){
-            double pct = (double)(kGuiMousePosition.x - displayBounds.x - activeBounds.x) / (double)(activeBounds.width);
+            double pct = (double)(guiStorage->kGuiMousePosition.x - displayBounds.x - activeBounds.x) / (double)(activeBounds.width);
             set((double)((*max) - (*min)) * pct);
         }
     }
@@ -1089,7 +1126,7 @@ protected:
         ofLine(handleBounds.position.x, handleBounds.position.y, handleBounds.position.x, handleBounds.position.y + handleBounds.height);
         ostringstream os; os.precision(3); os.setf( std::ios::fixed, std:: ios::floatfield );
         os << Parameter::getReference();
-        kGuiFont.drawString(os.str(), borderBounds.x + borderBounds.width - 7 * 8, borderSize + 16);
+        guiStorage->kGuiFont.drawString(os.str(), borderBounds.x + borderBounds.width - 7 * 8, borderSize + 16);
     }
     
     inline void layout(){
@@ -1160,7 +1197,7 @@ protected:
     
     inline void calculateValue(){
         if(min != NULL && max != NULL){
-            double pct = (double)(kGuiMousePosition.x - displayBounds.x - activeBounds.x) / (double)(activeBounds.width);
+            double pct = (double)(guiStorage->kGuiMousePosition.x - displayBounds.x - activeBounds.x) / (double)(activeBounds.width);
             set((double)((*max) - (*min)) * pct);
         }
     }
@@ -1170,7 +1207,7 @@ protected:
         ofLine(handleBounds.position.x, handleBounds.position.y, handleBounds.position.x, handleBounds.position.y + handleBounds.height);
         ostringstream os; os.precision(3); os.setf( std::ios::fixed, std:: ios::floatfield );
         os << Parameter::getReference();
-        kGuiFont.drawString(os.str(), borderBounds.x + borderBounds.width - 7 * 8, borderSize + 16);
+        guiStorage->kGuiFont.drawString(os.str(), borderBounds.x + borderBounds.width - 7 * 8, borderSize + 16);
     }
     
     inline void layout(){
@@ -1225,19 +1262,18 @@ public:
             widgetName = widget->label->getValue();
         }
         
-        if(widgetName != "" && kGuiWidgetMap.find(widgetName) == kGuiWidgetMap.end()){
-            kGuiWidgetMap.insert(pair<string, BaseWidget*>(widgetName, widget));
-            cout << "adding: " << widgetName << endl;
-            BaseWidget::add(widget);
-        }else{
-            BaseWidget::add(widget);
+        if(widgetName != "" && guiStorage->kGuiWidgetMap.find(widgetName) == guiStorage->kGuiWidgetMap.end()){
+            guiStorage->kGuiWidgetMap.insert(pair<string, BaseWidget*>(widgetName, widget));
+            cout << "adding: " << widgetName << " " << guiStorage->kGuiWidgetMap.size() << endl;
         }
         
+		BaseWidget::add(widget);
     }
     
     inline BaseWidget* getWidget(const string& widgetName){
-        map<string, BaseWidget*>::iterator it = kGuiWidgetMap.find(widgetName);
-        if(it != kGuiWidgetMap.end()){
+		cout << "getting: " << widgetName << " " << guiStorage->kGuiWidgetMap.size() << endl;
+        map<string, BaseWidget*>::iterator it = guiStorage->kGuiWidgetMap.find(widgetName);
+        if(it != guiStorage->kGuiWidgetMap.end()){
             return it->second;
         }else{
             return NULL;
@@ -1250,48 +1286,48 @@ protected:
         //cout << "canvasScroll " << renderBounds << " " << layoutDisplayBounds << endl;
         
         if(renderBounds.width - borderSize > layoutDisplayBounds.width &&
-           widgets[0]->relativeBounds.x - (kGuiMouseOrigin.x - kGuiMousePosition.x) <= 0 &&
-           widgets[widgets.size() - 1]->relativeBounds.x - (kGuiMouseOrigin.x - kGuiMousePosition.x) +
+           widgets[0]->relativeBounds.x - (guiStorage->kGuiMouseOrigin.x - guiStorage->kGuiMousePosition.x) <= 0 &&
+           widgets[widgets.size() - 1]->relativeBounds.x - (guiStorage->kGuiMouseOrigin.x - guiStorage->kGuiMousePosition.x) +
            widgets[widgets.size() - 1]->relativeBounds.width +
            layoutBounds.x >= layoutDisplayBounds.width){
             
             for(int i = 0; i < widgets.size(); i++){
-                widgets[i]->relativeBounds.x -= (kGuiMouseOrigin.x - kGuiMousePosition.x);
+                widgets[i]->relativeBounds.x -= (guiStorage->kGuiMouseOrigin.x - guiStorage->kGuiMousePosition.x);
             }
             
         }
         
         if(renderBounds.height - borderSize > layoutDisplayBounds.height &&
-           widgets[0]->relativeBounds.y - (kGuiMouseOrigin.y - kGuiMousePosition.y) <= 0 &&
-           widgets[widgets.size() - 1]->relativeBounds.y - (kGuiMouseOrigin.y - kGuiMousePosition.y) +
+           widgets[0]->relativeBounds.y - (guiStorage->kGuiMouseOrigin.y - guiStorage->kGuiMousePosition.y) <= 0 &&
+           widgets[widgets.size() - 1]->relativeBounds.y - (guiStorage->kGuiMouseOrigin.y - guiStorage->kGuiMousePosition.y) +
            widgets[widgets.size() - 1]->relativeBounds.height >= layoutDisplayBounds.height){
             for(int i = 0; i < widgets.size(); i++){
-                widgets[i]->relativeBounds.y -= (kGuiMouseOrigin.y - kGuiMousePosition.y);
+                widgets[i]->relativeBounds.y -= (guiStorage->kGuiMouseOrigin.y - guiStorage->kGuiMousePosition.y);
             }
         }
         
         //cout << widgets[0]->relativeBounds.y << " -- " << widgets[widgets.size() - 1]->relativeBounds.y + widgets[widgets.size() - 1]->relativeBounds.height + layoutBounds.y << endl;
         
         bPixelsDirty = true;
-        kGuiMouseOrigin = kGuiMousePosition;
+        guiStorage->kGuiMouseOrigin = guiStorage->kGuiMousePosition;
         recalculate();
     }
     
     inline void mouseDrag(){
         //cout << "canvasDrag" << endl;
         
-        relativeBounds.position -= (kGuiMouseOrigin - kGuiMousePosition);
+        relativeBounds.position -= (guiStorage->kGuiMouseOrigin - guiStorage->kGuiMousePosition);
         
         if(isChild()){
-            relativeBounds.x = CLAMP(relativeBounds.x, 20 - relativeBounds.width, kGuiDisplayBounds.width - 20);
-            relativeBounds.y = CLAMP(relativeBounds.y, 0, kGuiDisplayBounds.height - 44);
+            relativeBounds.x = CLAMP(relativeBounds.x, 20 - relativeBounds.width, guiStorage->kGuiDisplayBounds.width - 20);
+            relativeBounds.y = CLAMP(relativeBounds.y, 0, guiStorage->kGuiDisplayBounds.height - 44);
             
         }else{
-            relativeBounds.x = CLAMP(relativeBounds.x, 20 - kGuiDisplayBounds.width, ofGetWidth() - 20);
+            relativeBounds.x = CLAMP(relativeBounds.x, 20 - guiStorage->kGuiDisplayBounds.width, ofGetWidth() - 20);
             relativeBounds.y = CLAMP(relativeBounds.y, 0, ofGetHeight() - 44);
         }
         
-        kGuiMouseOrigin = kGuiMousePosition;
+        guiStorage->kGuiMouseOrigin = guiStorage->kGuiMousePosition;
         recalculate();
         
     }
@@ -1517,7 +1553,15 @@ class Gui:public Canvas{
 public:
     
     Gui(){
-        kGuiFont.loadFont(ofToDataPath("verdana.ttf"), 8);
+
+		guiStorage->kGuiMouseDirty = false;
+		guiStorage->kGuiActiveWidget = NULL;
+		guiStorage->kGuiWidgetMap.clear();
+		guiStorage->kGuiMousePosition = ofPoint(-1, -1);
+		guiStorage->kGuiMouseOrigin = ofPoint(-1, -1);
+		guiStorage->kGuiDisplayBounds = ofRectangle(0, 0 ,0, 0);
+        guiStorage->kGuiFont.loadFont(ofToDataPath("verdana.ttf"), 8);
+
         ofRegisterMouseEvents(this);
         ofAddListener(ofEvents().windowResized, this, &Gui::resized);
     }
@@ -1545,25 +1589,25 @@ public:
         
         ofPopStyle();
     }
-    
+
     void mouseMoved(ofMouseEventArgs & e){
-        kGuiMousePosition = ofPoint(e.x, e.y);
+        guiStorage->kGuiMousePosition = ofPoint(e.x, e.y);
     }
     
     void mouseDragged(ofMouseEventArgs & e){
-        kGuiMousePosition = ofPoint(e.x, e.y);
+        guiStorage->kGuiMousePosition = ofPoint(e.x, e.y);
         
     }
     
     void mousePressed(ofMouseEventArgs & e){
         if(inside(e.x, e.y)){
-            kGuiMousePosition = ofPoint(e.x, e.y);
-            kGuiMouseDirty = true;
+            guiStorage->kGuiMousePosition = ofPoint(e.x, e.y);
+            guiStorage->kGuiMouseDirty = true;
         }
     }
     
     void mouseReleased(ofMouseEventArgs & e){
-        kGuiMouseDirty = true;
+        guiStorage->kGuiMouseDirty = true;
     }
     
 protected:
@@ -1571,7 +1615,7 @@ protected:
     void resized(ofResizeEventArgs& e){
         recalculate();
     }
-    
+
 };
 
 #endif

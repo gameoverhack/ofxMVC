@@ -58,12 +58,10 @@ public:
     bool save(const string& filname, const ArchiveType& archiveType);
     bool load(const string& filname, const ArchiveType& archiveType);
     
-    
-    template<typename T>
-    inline void addParameter(Parameter<T>* parameter, bool bAddToGui){
+	template<typename T>
+    inline void addParameter(Parameter<T>* parameter){
         
-        //bAddToGui
-        if(true) addParameterGui((BaseParameter*)parameter);
+        addParameterGui((BaseParameter*)parameter);
 
         parameter->setUseEvents(false);
         parameter->setTrackChanges(false);
@@ -71,8 +69,8 @@ public:
         orderedParaVec.push_back(parameter);
         orderedParaMap.insert(pair<string, int>(parameter->getName(), orderedParaVec.size() - 1));
     }
-    
-    inline void addParameterGui(BaseParameter* parameter){
+
+	inline void addParameterGui(BaseParameter* parameter){
         
 //        cout << "Type: " << parameter->type() << " " << typeid(parameter).name() << " == " << typeid(Parameter<T>).name() << endl;
         
@@ -105,6 +103,7 @@ public:
             slider->setup(0, sliders->getLayoutHeight(), 300, 20);
             cout << sliders->getLayoutHeight() << endl;
             slider->set((Parameter<int>*)parameter);
+			//if(listener != NULL) ofAddListener(((Parameter<int>*)slider)->parameterEvent, listener, listenerMethod);
             sliders->add(slider);
             sliders->dirty();
             
@@ -117,6 +116,7 @@ public:
             slider->setLabel(parameter->getName());
             slider->setup(0, sliders->getLayoutHeight(), 300, 20);
             slider->set((Parameter<float>*)parameter);
+			//if(listener != NULL) ofAddListener(((Parameter<float>*)slider)->parameterEvent, listener, listenerMethod);
             sliders->add(slider);
             sliders->dirty();
             
@@ -141,6 +141,7 @@ public:
             toggle->setLabel(parameter->getName());
             toggle->setup(0, toggles->getLayoutHeight(), 300, 20);
             toggle->set((Parameter<bool>*)parameter);
+			//if(listener != NULL) ofAddListener(((Parameter<bool>*)toggle)->parameterEvent, listener, listenerMethod);
             toggles->add(toggle);
             toggles->dirty();
             
@@ -159,15 +160,15 @@ public:
         }
         
     }
-    
+
     template<typename T>
-    void setProperty(const string& name, T* value, bool bAddToGui = false){
+    void setProperty(const string& name, T* value){
         
         unordered_map<string, BaseParameter*>::iterator it = parameters.find(name);
         
         if(it == parameters.end()){
             Parameter<T>* parameter = new Parameter<T>(name, value);
-            addParameter(parameter, bAddToGui);
+            addParameter(parameter);
         }else{
             Parameter<T>* parameter = (Parameter<T>*)it->second;
             parameter->set(value);
@@ -177,13 +178,13 @@ public:
     
     
     template<typename T>
-    void setProperty(const string& name, const T& value, bool bAddToGui = false){
+    void setProperty(const string& name, const T& value){
         
         unordered_map<string, BaseParameter*>::iterator it = parameters.find(name);
         
         if(it == parameters.end()){
             Parameter<T>* parameter = new Parameter<T>(name, value);
-            addParameter(parameter, bAddToGui);
+            addParameter(parameter);
         }else{
             Parameter<T>* parameter = (Parameter<T>*)it->second;
             parameter->set(value);
@@ -192,38 +193,208 @@ public:
     }
     
     template<typename T>
-    inline void setProperty(const string& name, T* value, const T& min, const T& max, bool bAddToGui = false){
+    inline void setProperty(const string& name, T* value, const T& min, const T& max){
         
         unordered_map<string, BaseParameter*>::iterator it = parameters.find(name);
         
         if(it == parameters.end()){
             Parameter<T>* parameter = new Parameter<T>(name, value, min, max);
-            addParameter(parameter, bAddToGui);
+            addParameter(parameter);
         }else{
             Parameter<T>* parameter = (Parameter<T>*)it->second;
             parameter->set(value);
         }
         
     }
-    
-    template<typename T>
-    inline void setProperty(const string& name, const T& value, const T& min, const T& max, bool bAddToGui = false){
+
+	template<typename T>
+    inline void setProperty(const string& name, const T& value, const T& min, const T& max){
         
         unordered_map<string, BaseParameter*>::iterator it = parameters.find(name);
         
         if(it == parameters.end()){
             Parameter<T>* parameter = new Parameter<T>(name, value, min, max);
-            addParameter(parameter, bAddToGui);
+            addParameter(parameter);
         }else{
             Parameter<T>* parameter = (Parameter<T>*)it->second;
             parameter->set(value);
         }
         
     }
-    
-    
+
+//	template<typename T, typename ArgumentsType, class ListenerClass>
+//    inline void addParameter(Parameter<T>* parameter,  ListenerClass  * listener, void (ListenerClass::*listenerMethod)(ArgumentsType&)){
+//        
+//        addParameterGui((BaseParameter*)parameter, listener, listenerMethod);
+//
+//        parameter->setUseEvents(false);
+//        parameter->setTrackChanges(false);
+//        parameters.insert(pair<string, BaseParameter*>(parameter->getName(), parameter));
+//        orderedParaVec.push_back(parameter);
+//        orderedParaMap.insert(pair<string, int>(parameter->getName(), orderedParaVec.size() - 1));
+//    }
+//
+//	template<typename ArgumentsType, class ListenerClass>
+//	inline void addParameterGui(BaseParameter* parameter, ListenerClass  * listener, void (ListenerClass::*listenerMethod)(ArgumentsType&)){
+//        
+////        cout << "Type: " << parameter->type() << " " << typeid(parameter).name() << " == " << typeid(Parameter<T>).name() << endl;
+//        
+//        if(gui == NULL){
+//            cout << "Add GUI" << endl;
+//            gui = new Gui;
+//            gui->setResizeMode(BaseWidget::RESIZEMODE_ABS);
+//            gui->setup(0, 0, 600, 800);
+//            gui->setLabel("GUI");
+//            
+//            toggles = new Canvas;
+//            toggles->setLabel("toggles");
+//            toggles->setResizeMode(BaseWidget::RESIZEMODE_ABS);
+//            toggles->setup(0, 0, 300, gui->getHeight() - 40);
+//            sliders = new Canvas;
+//            sliders->setLabel("sliders");
+//            sliders->setResizeMode(BaseWidget::RESIZEMODE_ABS);
+//            sliders->setup(300, 0, 300, gui->getHeight() - 40);
+//            
+//            gui->add(toggles);
+//            gui->add(sliders);
+//            
+//        }
+//        
+//        if(parameter->type() == typeid(Parameter<int>).name() && ((Parameter<int>*)parameter)->isRangeSet()){
+//            cout << "Add slider int" << endl;
+//            cout << ((Parameter<int>*)parameter)->getMin() << " == " << ((Parameter<int>*)parameter)->getMax() << endl;
+//            IntSlider* slider = new IntSlider;
+//            slider->setLabel(parameter->getName());
+//            slider->setup(0, sliders->getLayoutHeight(), 300, 20);
+//            cout << sliders->getLayoutHeight() << endl;
+//            slider->set((Parameter<int>*)parameter);
+//			ofAddListener(((Parameter<int>*)slider)->parameterEvent, listener, (void (ListenerClass::*)(ParameterEvent<int>&))listenerMethod);
+//            sliders->add(slider);
+//            sliders->dirty();
+//            
+//        }
+//        
+//        if(parameter->type() == typeid(Parameter<float>).name() && ((Parameter<float>*)parameter)->isRangeSet()){
+//            cout << "Add slider float" << endl;
+//            
+//            FloatSlider* slider = new FloatSlider;
+//            slider->setLabel(parameter->getName());
+//            slider->setup(0, sliders->getLayoutHeight(), 300, 20);
+//            slider->set((Parameter<float>*)parameter);
+//			ofAddListener(((Parameter<float>*)slider)->parameterEvent, listener, (void (ListenerClass::*)(ParameterEvent<float>&))listenerMethod);
+//            sliders->add(slider);
+//            sliders->dirty();
+//            
+//        }
+//        
+//        if(parameter->type() == typeid(Parameter<double>).name() && ((Parameter<double>*)parameter)->isRangeSet()){
+//            cout << "Add slider double" << endl;
+//        }
+//        
+//        if(parameter->type() == typeid(Parameter<string>).name()){
+//            cout << "Add label string" << endl;
+//        }
+//        
+//        if(parameter->type() == typeid(Parameter<char>).name()){
+//            cout << "Add label char" << endl;
+//        }
+//        
+//        if(parameter->type() == typeid(Parameter<bool>).name()){
+//            cout << "Add toggle bool" << endl;
+//            
+//            Toggle* toggle = new Toggle;
+//            toggle->setLabel(parameter->getName());
+//            toggle->setup(0, toggles->getLayoutHeight(), 300, 20);
+//            toggle->set((Parameter<bool>*)parameter);
+//			ofAddListener(((Parameter<bool>*)toggle)->parameterEvent, listener, (void (ListenerClass::*)(ParameterEvent<bool>&))listenerMethod);
+//            toggles->add(toggle);
+//            toggles->dirty();
+//            
+//        }
+//        
+//        if(parameter->type() == typeid(Parameter<ofPoint>).name()){
+//            cout << "Add ? ofPoint" << endl;
+//        }
+//        
+//        if(parameter->type() == typeid(Parameter<ofRectangle>).name()){
+//            cout << "Add ? ofRectangle" << endl;
+//        }
+//        
+//        if(parameter->type() == typeid(Parameter<ofColor>).name()){
+//            cout << "Add ? ofColor" << endl;
+//        }
+//        
+//    }
+//
+//    template<typename T, typename ArgumentsType, class ListenerClass>
+//    void setProperty(const string& name, T* value, ListenerClass  * listener, void (ListenerClass::*listenerMethod)(ArgumentsType&)){
+//        
+//        unordered_map<string, BaseParameter*>::iterator it = parameters.find(name);
+//        
+//        if(it == parameters.end()){
+//            Parameter<T>* parameter = new Parameter<T>(name, value);
+//            addParameter(parameter, listener, listenerMethod);
+//        }else{
+//            Parameter<T>* parameter = (Parameter<T>*)it->second;
+//            parameter->set(value);
+//        }
+//        
+//    }
+//    
+//    
+//    template<typename T, typename ArgumentsType, class ListenerClass>
+//    void setProperty(const string& name, const T& value, ListenerClass  * listener, void (ListenerClass::*listenerMethod)(ArgumentsType&)){
+//        
+//        unordered_map<string, BaseParameter*>::iterator it = parameters.find(name);
+//        
+//        if(it == parameters.end()){
+//            Parameter<T>* parameter = new Parameter<T>(name, value);
+//            addParameter(parameter, listener, listenerMethod);
+//        }else{
+//            Parameter<T>* parameter = (Parameter<T>*)it->second;
+//            parameter->set(value);
+//        }
+//        
+//    }
+//    
+//    template<typename T, typename ArgumentsType, class ListenerClass>
+//    inline void setProperty(const string& name, T* value, const T& min, const T& max, ListenerClass  * listener, void (ListenerClass::*listenerMethod)(ArgumentsType&)){
+//        
+//        unordered_map<string, BaseParameter*>::iterator it = parameters.find(name);
+//        
+//        if(it == parameters.end()){
+//            Parameter<T>* parameter = new Parameter<T>(name, value, min, max);
+//            addParameter(parameter, listener, listenerMethod);
+//        }else{
+//            Parameter<T>* parameter = (Parameter<T>*)it->second;
+//            parameter->set(value);
+//        }
+//        
+//    }
+//
+//	template<typename T, typename ArgumentsType, class ListenerClass>
+//    inline void setProperty(const string& name, const T& value, const T& min, const T& max, ListenerClass  * listener, void (ListenerClass::*listenerMethod)(ArgumentsType&)){
+//        
+//        unordered_map<string, BaseParameter*>::iterator it = parameters.find(name);
+//        
+//        if(it == parameters.end()){
+//            Parameter<T>* parameter = new Parameter<T>(name, value, min, max);
+//            addParameter(parameter, listener, listenerMethod);
+//        }else{
+//            Parameter<T>* parameter = (Parameter<T>*)it->second;
+//            parameter->set(value);
+//        }
+//        
+//    }
+
+	template<typename T, typename ArgumentsType, class ListenerClass>
+	void addListener(const string& widgetName, ListenerClass  * listener, void (ListenerClass::*listenerMethod)(ArgumentsType&)){
+		T* widget = (T*)gui->getWidget(widgetName);
+		ofAddListener(widget->parameterEvent, listener, listenerMethod);
+	}
+
     template<typename T>
-    inline Parameter<T>* getProperty(const string& name){
+    inline Parameter<T>* getPropertyRaw(const string& name){
         
         unordered_map<string, BaseParameter*>::iterator it = parameters.find(name);
         
@@ -238,8 +409,8 @@ public:
     
     
     template<typename T>
-    inline const T& getPropertyReference(const string& name){
-        return getProperty<T>(name)->getReference();
+    inline const T& getProperty(const string& name){
+        return getPropertyRaw<T>(name)->getReference();
     }
     
     
@@ -301,6 +472,11 @@ public:
     
     inline void removeAllProperties(){
         
+		if(gui != NULL){
+			delete gui;
+			gui = new Gui;
+		}
+
         for(unordered_map<string, BaseParameter*>::iterator it = parameters.begin(); it != parameters.end(); ++it){
             delete it->second;
         }
@@ -514,7 +690,7 @@ protected:
     
 	template<class Archive>
     void load(Archive & ar, const unsigned int version){
-        
+         
         ar & BOOST_SERIALIZATION_NVP(parameters);
         ar & BOOST_SERIALIZATION_NVP(orderedParaVec);
         ar & BOOST_SERIALIZATION_NVP(orderedParaMap);
