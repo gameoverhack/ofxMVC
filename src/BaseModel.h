@@ -487,7 +487,7 @@ protected:
     }
     
     // gui
-    Gui * gui = NULL;
+    Gui * gui;
     Canvas* toggles;
     Canvas* sliders;
     

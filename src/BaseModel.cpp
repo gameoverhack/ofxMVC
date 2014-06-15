@@ -11,6 +11,7 @@
 //--------------------------------------------------------------
 BaseModel::BaseModel() {
     ofxLogVerbose() << "Constructing BaseModel" << endl;
+	gui = NULL;
     reset();
 }
 

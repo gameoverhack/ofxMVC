@@ -8,7 +8,7 @@
 
 #include "BezierWarp.h"
 
-GLfloat texpts [2][2][2] = {
+float texpts [2][2][2] = {
     { {0, 0}, {1, 0} },	{ {0, 1}, {1, 1} }
 };
 
@@ -26,6 +26,8 @@ BezierWarp::BezierWarp(){
     warpHeight = 0;
     bShowWarpGrid = false;
     bWarpPositionDiff = false;
+	gridResolution = -1;
+	offset = ofPoint(0, 0);
 }
 
 //--------------------------------------------------------------
@@ -115,7 +117,7 @@ void BezierWarp::draw(float x, float y, float w, float h){
 
     ofPushMatrix();
 
-    ofTranslate(x, y);
+    ofTranslate(x + offset.x, y + offset.y);
     ofScale(w/width, h/height);
 
     ofTexture & fboTex = fbo.getTextureReference();
@@ -144,7 +146,7 @@ void BezierWarp::drawWarpGrid(float x, float y, float w, float h){
     ofPushMatrix();
 
     ofSetColor(255, 255, 255);
-    ofTranslate(x, y);
+    ofTranslate(x + offset.x, y + offset.y);
     ofScale(w/width, h/height);
 
     glEvalMesh2(GL_LINE, 0, gridDivX, 0, gridDivY);
@@ -180,7 +182,7 @@ void BezierWarp::setWarpGrid(int _numXPoints, int _numYPoints, bool forceReset){
         // calculate an even distribution of X and Y control points across fbo width and height
         cntrlPoints.resize(numXPoints * numYPoints * 3);
         for(int i = 0; i < numYPoints; i++){
-            GLfloat x, y;
+            float x, y;
             y = (height / (numYPoints - 1)) * i;
             for(int j = 0; j < numXPoints; j++){
                 x = (width / (numXPoints - 1)) * j;
@@ -206,7 +208,14 @@ void BezierWarp::setWarpGridPosition(float x, float y, float w, float h){
 
 //--------------------------------------------------------------
 void BezierWarp::setWarpGridResolution(float pixelsPerGridDivision){
+	gridResolution = pixelsPerGridDivision;
     setWarpGridResolution(ceil(fbo.getWidth() / pixelsPerGridDivision), ceil(fbo.getHeight() / pixelsPerGridDivision));
+}
+
+//--------------------------------------------------------------
+float BezierWarp::getWarpGridResolution(){
+	assert(gridResolution > 0); // tis since if set via gridDivY/X it won't be a single number...
+	return gridResolution;
 }
 
 //--------------------------------------------------------------
@@ -292,20 +301,35 @@ ofTexture& BezierWarp::getTextureReference(){
 }
 
 //--------------------------------------------------------------
-void BezierWarp::setControlPoints(vector<GLfloat> _cntrlPoints){
+void BezierWarp::setControlPoints(vector<float> _cntrlPoints){
     cntrlPoints.clear();
     cntrlPoints = _cntrlPoints;
     glMap2f(GL_MAP2_VERTEX_3, 0, 1, 3, numXPoints, 0, 1, numXPoints * 3, numYPoints, &(cntrlPoints[0]));
 }
 
 //--------------------------------------------------------------
-vector<GLfloat> BezierWarp::getControlPoints(){
+vector<float> BezierWarp::getControlPoints(){
     return cntrlPoints;
 }
 
 //--------------------------------------------------------------
-vector<GLfloat>& BezierWarp::getControlPointsReference(){
+vector<float>& BezierWarp::getControlPointsReference(){
     return cntrlPoints;
+}
+
+//--------------------------------------------------------------
+void BezierWarp::setOffset(ofPoint p){
+	offset = p;
+}
+
+//--------------------------------------------------------------
+ofPoint BezierWarp::getOffset(){
+	return offset;
+}
+
+//--------------------------------------------------------------
+ofPoint& BezierWarp::getOffsetReference(){
+	return offset;
 }
 
 //--------------------------------------------------------------
@@ -318,12 +342,18 @@ void BezierWarp::mouseDragged(ofMouseEventArgs & m){
 
     if(!bShowWarpGrid) mouseReleased(m);
 
-    float x = m.x;
-    float y = m.y;
+	if(m.button == 2){ // set offset
+		offset.x = m.x - sOffset.x;
+		offset.y = m.y - sOffset.y;
+		return;
+	}
+
+    float x = m.x + offset.x;
+    float y = m.y + offset.y;
 
     if(bWarpPositionDiff){
-        x = (m.x - warpX) * width/warpWidth;
-        y = (m.y - warpY) * height/warpHeight;
+        x = (m.x - (warpX + offset.x)) * width/warpWidth;
+        y = (m.y - (warpY + offset.y)) * height/warpHeight;
     }
 
     if(currentCntrlX != -1 && currentCntrlY != -1){
@@ -338,12 +368,18 @@ void BezierWarp::mousePressed(ofMouseEventArgs & m){
 
     if(!bShowWarpGrid) mouseReleased(m);
 
-    float x = m.x;
-    float y = m.y;
+	if(m.button == 2){ // set offset
+		sOffset.x = m.x;
+		sOffset.y = m.y;
+		return;
+	}
+
+    float x = m.x + offset.x;
+    float y = m.y + offset.y;
 
     if(bWarpPositionDiff){
-        x = (m.x - warpX) * width/warpWidth;
-        y = (m.y - warpY) * height/warpHeight;
+        x = (m.x - (warpX + offset.x)) * width/warpWidth;
+        y = (m.y - (warpY + offset.y)) * height/warpHeight;
     }
 
     float dist = 10.0f;

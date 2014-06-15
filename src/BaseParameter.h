@@ -5,10 +5,10 @@
 //  Copyright (c) 2014 trace media. All rights reserved.
 //
 
-//#ifndef __H_BASEPARAMETER
-//#define __H_BASEPARAMETER
+#ifndef __H_BASEPARAMETER
+#define __H_BASEPARAMETER
 
-#pragma once
+//#pragma once
 
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/export.hpp>
@@ -35,9 +35,9 @@ public:
     
     virtual string getName() const{return "";}
 	virtual void setName(string name){}
-	virtual string toString() const{}
+	virtual string toString() const{return "";}
 	virtual void fromString(string str){}
-	virtual string type() const{}
+	virtual string type() const{return "";}
     
 //    template<typename T>
 //	Parameter<T> * cast(){
@@ -67,20 +67,20 @@ public:
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(BaseParameter)
 
-ostream& operator<<(ostream& os, const BaseParameter* p){
-	os << p->toString();
-	return os;
-};
-
-ostream& operator<<(ostream& os, const BaseParameter& p){
-	os << p.toString();
-	return os;
-};
-
-//#endif
+//ostream& operator<<(ostream& os, const BaseParameter* p){
+//	os << p->toString();
+//	return os;
+//};
 //
-//#ifndef __H_PARAMETER
-//#define __H_PARAMETER
+//ostream& operator<<(ostream& os, const BaseParameter& p){
+//	os << p.toString();
+//	return os;
+//};
+
+#endif
+
+#ifndef __H_PARAMETER
+#define __H_PARAMETER
 
 template <typename T>
 class Parameter : public BaseParameter{
@@ -513,4 +513,4 @@ Parameter<T> & Parameter<T>::operator>>=(const OtherType & v){
 	return *this;
 }
 
-//#endif
+#endif

@@ -46,6 +46,7 @@ public:
     int getNumXPoints();
     int getNumYPoints();
 
+	float getWarpGridResolution();
     int getGridDivisionsX();
     int getGridDivisionsY();
 
@@ -57,10 +58,15 @@ public:
 
     ofTexture& getTextureReference();
 
-    void setControlPoints(vector<GLfloat> controlPoints);
+    void setControlPoints(vector<float> controlPoints);
 
-    vector<GLfloat> getControlPoints();
-    vector<GLfloat>& getControlPointsReference();
+    vector<float> getControlPoints();
+    vector<float>& getControlPointsReference();
+
+	void setOffset(ofPoint p);
+
+	ofPoint getOffset();
+	ofPoint& getOffsetReference();
 
     void mouseMoved(ofMouseEventArgs & m);
     void mouseDragged(ofMouseEventArgs & m);
@@ -78,6 +84,8 @@ protected:
 
     float width;
     float height;
+	ofPoint offset;
+	ofPoint sOffset;
 
     float warpWidth;
     float warpHeight;
@@ -90,10 +98,11 @@ protected:
     int numXPoints;
     int numYPoints;
 
+	float gridResolution;
     int gridDivX;
     int gridDivY;
 
-    vector<GLfloat> cntrlPoints;
+    vector<float> cntrlPoints;
 
 private:
 

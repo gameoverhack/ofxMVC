@@ -23,7 +23,7 @@ class IntSlider;
 class FloatSlider;
 class DoubleSlider;
 class Canvas;
-class Image;
+class ImageTexture;
 class Matrix;
 class List;
 class Gui;
@@ -89,7 +89,7 @@ public:
         setBounds(x, y, w, h);
     }
     
-    virtual void setLabel(string _label){};
+    //virtual void setLabel(string _label){};
     
     virtual void update(){
         
@@ -393,7 +393,7 @@ public:
     friend class FloatSlider;
     friend class DoubleSlider;
     friend class Canvas;
-    friend class Image;
+    friend class ImageTexture;
     friend class Matrix;
     friend class List;
     friend class Gui;
@@ -1319,11 +1319,11 @@ protected:
     
 };
 
-class Image:public BaseWidget{
+class ImageTexture:public BaseWidget{
     
 public:
     
-    Image(){
+    ImageTexture(){
         resizeMode = RESIZEMODE_GROW;
     }
     

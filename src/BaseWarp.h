@@ -59,10 +59,10 @@ public:
     virtual void setShowWarpGrid(bool b);
     virtual bool getShowWarpGrid();
 
-    virtual void setControlPoints(vector<GLfloat> controlPoints);
+    virtual void setControlPoints(vector<float> controlPoints);
 
-    virtual vector<GLfloat> getControlPoints();
-    virtual vector<GLfloat>& getControlPointsReference();
+    virtual vector<float> getControlPoints();
+    virtual vector<float>& getControlPointsReference();
 
 protected:
 

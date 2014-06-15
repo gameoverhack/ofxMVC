@@ -94,21 +94,21 @@ bool BaseWarp::getShowWarpGrid(){
 }
 
 //--------------------------------------------------------------
-void BaseWarp::setControlPoints(vector<GLfloat> controlPoints){
+void BaseWarp::setControlPoints(vector<float> controlPoints){
     ofLogWarning() << "BaseWarp does not implement setControlPoints";
 }
 
 //--------------------------------------------------------------
-vector<GLfloat> BaseWarp::getControlPoints(){
+vector<float> BaseWarp::getControlPoints(){
     ofLogWarning() << "BaseWarp does not implement getControlPoints";
-    vector<GLfloat> v;
+    vector<float> v;
     return v;
 }
 
 //--------------------------------------------------------------
-vector<GLfloat>& BaseWarp::getControlPointsReference(){
+vector<float>& BaseWarp::getControlPointsReference(){
     ofLogWarning() << "BaseWarp does not implement getControlPointsReference";
-    vector<GLfloat> v;
+    vector<float> v;
     return v;
 }
 
