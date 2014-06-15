@@ -42,10 +42,11 @@ template <class T> T* Singleton<T>::m_pInstance=NULL;
 #include <libproc.h>
 #import <ifaddrs.h>
 #import <arpa/inet.h>
-#endif
-
 using namespace std;
 using namespace tr1;
+#endif
+
+
 
 class BaseModel {
 
@@ -474,7 +475,7 @@ public:
         
 		if(gui != NULL){
 			delete gui;
-			gui = new Gui;
+			gui = NULL;
 		}
 
         for(unordered_map<string, BaseParameter*>::iterator it = parameters.begin(); it != parameters.end(); ++it){

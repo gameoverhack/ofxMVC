@@ -1020,23 +1020,23 @@ protected:
     }
     
     inline void valueChanged(){
-        if(min != max) (*value) = CLAMP((*value), (*min), (*max));
+        if(Parameter::isRangeSet()) (*value) = CLAMP((*value), valueMin, valueMax);
         calculateHandle();
         bValueChanged = true;
         Parameter::valueChanged();
     }
     
     inline void calculateHandle(){
-        if(min != NULL && max != NULL){
-            double pct = (double)(*value) / (double)((*max) - (*min));
+        if(Parameter::isRangeSet()){
+            double pct = (double)(*value) / (double)(valueMax - valueMin);
             handleBounds.x = activeBounds.width * pct;
         }
     }
     
     inline void calculateValue(){
-        if(min != NULL && max != NULL){
+        if(Parameter::isRangeSet()){
             double pct = (double)(guiStorage->kGuiMousePosition.x - displayBounds.x - activeBounds.x) / (double)(activeBounds.width);
-            set((double)((*max) - (*min)) * pct);
+            set((double)(valueMax - valueMin) * pct);
         }
     }
     
@@ -1101,23 +1101,23 @@ protected:
     }
     
     inline void valueChanged(){
-        if(min != max) (*value) = CLAMP((*value), (*min), (*max));
+        if(Parameter::isRangeSet()) (*value) = CLAMP((*value), valueMin, valueMax);
         calculateHandle();
         bValueChanged = true;
         Parameter::valueChanged();
     }
     
     inline void calculateHandle(){
-        if(min != NULL && max != NULL){
-            double pct = (double)(*value) / (double)((*max) - (*min));
+        if(Parameter::isRangeSet()){
+            double pct = (double)(*value) / (double)(valueMax - valueMin);
             handleBounds.x = activeBounds.width * pct;
         }
     }
     
     inline void calculateValue(){
-        if(min != NULL && max != NULL){
+        if(Parameter::isRangeSet()){
             double pct = (double)(guiStorage->kGuiMousePosition.x - displayBounds.x - activeBounds.x) / (double)(activeBounds.width);
-            set((double)((*max) - (*min)) * pct);
+            set((double)(valueMax - valueMin) * pct);
         }
     }
     
@@ -1182,23 +1182,23 @@ protected:
     }
     
     inline void valueChanged(){
-        if(min != max) (*value) = CLAMP((*value), (*min), (*max));
+        if(Parameter::isRangeSet()) (*value) = CLAMP((*value), valueMin, valueMax);
         calculateHandle();
         bValueChanged = true;
         Parameter::valueChanged();
     }
     
     inline void calculateHandle(){
-        if(min != NULL && max != NULL){
-            double pct = (double)(*value) / (double)((*max) - (*min));
+        if(Parameter::isRangeSet()){
+            double pct = (double)(*value) / (double)(valueMax - valueMin);
             handleBounds.x = activeBounds.width * pct;
         }
     }
     
     inline void calculateValue(){
-        if(min != NULL && max != NULL){
+        if(Parameter::isRangeSet()){
             double pct = (double)(guiStorage->kGuiMousePosition.x - displayBounds.x - activeBounds.x) / (double)(activeBounds.width);
-            set((double)((*max) - (*min)) * pct);
+            set((double)(valueMax - valueMin) * pct);
         }
     }
     
@@ -1566,6 +1566,12 @@ public:
         ofAddListener(ofEvents().windowResized, this, &Gui::resized);
     }
     
+	~Gui(){
+		ofUnregisterMouseEvents(this);
+        ofRemoveListener(ofEvents().windowResized, this, &Gui::resized);
+		guiStorage->kGuiWidgetMap.clear();
+	}
+
     void setLabel(string _label){
         if(label == NULL){
             label = new Label;

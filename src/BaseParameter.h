@@ -105,42 +105,42 @@ class Parameter : public BaseParameter{
     
 public:
     
-	Parameter():name(""), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){}
+	Parameter():name(""), value(new T), bUseEvents(true), bTrackChanges(true), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){}
     
-	Parameter(const string& _name):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){}
+	Parameter(const string& _name):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){}
     
-	Parameter(const string& _name, const T& _value):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
+	Parameter(const string& _name, const T& _value):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
 		set(_value);
 	}
     
-    Parameter(const string& _name, const T& _value, const T& _min, const T& _max):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
+    Parameter(const string& _name, const T& _value, const T& _min, const T& _max):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
         setRange(_min, _max);
 		set(_value);
 	}
     
-	Parameter(const string& _name, T& _value):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
+	Parameter(const string& _name, T& _value):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
 		set(_value);
 	}
     
-    Parameter(const string& _name, T& _value, const T& _min, const T& _max):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
+    Parameter(const string& _name, T& _value, const T& _min, const T& _max):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
         setRange(_min, _max);
 		set(_value);
 	}
     
-	Parameter(const string& _name, T* _value, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
+	Parameter(const string& _name, T* _value, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
 		set(_value, bSetValue);
 	}
     
-    Parameter(const string& _name, T* _value, const T& _min, const T& _max, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
+    Parameter(const string& _name, T* _value, const T& _min, const T& _max, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
         setRange(_min, _max);
 		set(_value, bSetValue);
 	}
     
-	Parameter(const string& _name, T** _value, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
+	Parameter(const string& _name, T** _value, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
 		set(_value, bSetValue);
 	}
     
-    Parameter(const string& _name, T** _value, const T& _min, const T& _max, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), min(new T), max(new T), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
+    Parameter(const string& _name, T** _value, const T& _min, const T& _max, bool bSetValue = false):name(_name), value(new T), bUseEvents(true), bTrackChanges(true), bMinSet(false), bMaxSet(false), typeName(typeid(*this).name()){
         setRange(_min, _max);
 		set(_value, bSetValue);
 	}
@@ -233,33 +233,35 @@ public:
     void set(Parameter<T>* other){
         name = other->name;
 		value = other->value;
-        min = other->min;
-        max = other->max;
+        valueMin = other->valueMin;
+        valueMax = other->valueMax;
+		bMinSet = other->bMinSet;
+		bMaxSet = other->bMaxSet;
         valueChanged();
 	}
     
     void setRange(const T& _min, const T& _max){
-        (*min) = _min;
-        (*max) = _max;
+        valueMin = _min;
+        valueMax = _max;
         bMinSet = bMaxSet = true;
     }
     
     void setMin(const T& _min){
-        (*min) = _min;
+        valueMin = _min;
         bMinSet = true;
     }
     
     void setMax(const T& _max){
-        (*max) = _max;
+        valueMax = _max;
         bMaxSet = true;
     }
     
     T getMin(){
-        return (*min);
+        return valueMin;
     }
     
     T getMax(){
-        return (*max);
+        return valueMax;
     }
     
     bool isRangeSet(){
@@ -324,7 +326,7 @@ public:
 protected:
 
     virtual inline void valueChanged(){
-        //if(min != max) (*value) = CLAMP((*value), (*min), (*max));
+        //if(valueMin != valueMax) (*value) = CLAMP((*value), valueMin, valueMax);
         if(bTrackChanges) lvalue = (*value);
         if(bUseEvents){
 			ParameterEvent<T> e = ParameterEvent<T>(name, value);
@@ -334,9 +336,9 @@ protected:
     
 	string name;
 	T * value;
-    T lvalue;
-    T * min;
-    T * max;
+	T lvalue;
+	T valueMin;
+	T valueMax;
     
     string typeName;
     
@@ -359,11 +361,13 @@ protected:
         ar & BOOST_SERIALIZATION_NVP(bUseEvents);
         ar & BOOST_SERIALIZATION_NVP(bTrackChanges);
 
-		if(isRangeSet()){
-			ar & BOOST_SERIALIZATION_NVP((*min));
-			ar & BOOST_SERIALIZATION_NVP((*max));
+		if(!isRangeSet()){
+			valueMin = T();
+			valueMax = T();
 		}
 
+		ar & BOOST_SERIALIZATION_NVP(valueMin);
+		ar & BOOST_SERIALIZATION_NVP(valueMax);
         
 	}
 

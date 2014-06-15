@@ -33,36 +33,11 @@ enum ArchiveType{
 
 class _Serializer {
 public:
-    template <class vectorType>
-    bool loadVector(string filePath, vector< vectorType > * vec, ArchiveType archiveType) {
-        ofxLogNotice() << "Loading serial data: " << filePath << endl;
-        std::ifstream ifs(ofToDataPath(filePath).c_str());
-        if(ifs.fail()){
-            ofxLogError() << "Could not load vector: " << filePath << endl;
-            abort(); // Could be a bit over zealous
-        }
-        boost::archive::text_iarchive ia(ifs);
-        ia >> (*vec);
-        return true;
-    }
-    
-    template <class vectorType>
-    bool saveVector(string filePath, vector< vectorType > * vec, ArchiveType archiveType) {
-        ofxLogNotice() << "Saving serial data: " << filePath << endl;
-        std::ofstream ofs(ofToDataPath(filePath).c_str());
-        if(ofs.fail()){
-            ofxLogError() << "Could not save vector: " << filePath << endl;
-            abort(); // Could be a bit over zealous
-        }
-        boost::archive::text_oarchive to(ofs);
-        to << (*vec);
-        return true;
-    }
     
     template <class C>
     bool loadClass(string filePath, C &someClass, ArchiveType archiveType) {
         ofxLogNotice() << "Loading class data: " << filePath << endl;
-        std::ifstream ifs(ofToDataPath(filePath).c_str());
+        std::ifstream ifs(ofToDataPath(filePath).c_str(), std::fstream::binary | std::fstream::in);
         if(ifs.fail()){
             ofxLogError() << "Could not open file stream for loading: " << filePath << endl;
             return false;
@@ -104,7 +79,7 @@ public:
     template <class C>
     bool saveClass(string filePath, C &someClass, ArchiveType archiveType) {
         ofxLogNotice() << "Saving class data: " << filePath << endl;
-        std::ofstream ofs(ofToDataPath(filePath).c_str());
+        std::ofstream ofs(ofToDataPath(filePath).c_str(), std::ostream::binary | std::ostream::out);
         if(ofs.fail()){
             ofxLogError() << "Could not open file stream for saving: " << filePath << endl;
             return false;
