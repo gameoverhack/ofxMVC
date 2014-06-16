@@ -321,7 +321,7 @@ public:
 	template<typename OtherType>
 	Parameter<T> & operator>>=(const OtherType & v);
     
-    ofEvent<ParameterEvent<T>> parameterEvent;
+    ofEvent< ParameterEvent<T> > parameterEvent;
 
 protected:
 
